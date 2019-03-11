@@ -18,6 +18,9 @@
             <li>{{ etiqueta.orgao }}</li>
             <li>{{ etiqueta.endereco }}</li>
             <li>{{ etiqueta.data_adicionado }}</li>
+            {% if etiqueta.data_gerado %}
+                <li>{{ etiqueta.data_gerado }}</li>
+            {% endif %}
         </ul>
         <a class="btn btn-primary" href="/pdf/{{ etiqueta.id }}"><i class="fas fa-file-pdf"></i></a>
         <a class="btn btn-primary" href="/update/{{ etiqueta.id }}"><i class="fas fa-pen"></i></a>

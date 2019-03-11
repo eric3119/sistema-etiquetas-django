@@ -10,7 +10,8 @@ from reportlab.lib.units import inch, cm
 
 from .forms import EtiqForm
 
-import datetime
+from django.utils import timezone
+import pytz
 
 import logging
 logger = logging.getLogger(__name__)
@@ -97,5 +98,9 @@ def pdf_gen(request, id_etiq):
     pdf = buffer.getvalue()
     buffer.close()
     response.write(pdf)
+
+    if etiqueta.data_gerado == None:
+        etiqueta.data_gerado = timezone.now()
+        etiqueta.save()
 
     return response

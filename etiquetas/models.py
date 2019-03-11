@@ -8,6 +8,7 @@ class Etiqueta(models.Model):
     orgao = models.CharField(max_length = 100)
     endereco = models.CharField(max_length = 100)
     data_adicionado = models.DateTimeField(auto_now_add=True)
+    data_gerado = models.DateTimeField(null=True)
 
     def __str__(self):
         return self.nome
