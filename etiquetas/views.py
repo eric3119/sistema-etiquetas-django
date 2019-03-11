@@ -27,6 +27,17 @@ def home(request):
         'etiquetas': etiquetas
     })
 
+def envios(request):
+
+    nome = 'envios'
+
+    etiquetas = Etiqueta.objects.exclude(data_gerado=None)
+    
+    return render(request, 'envios.html', {
+        'nome': nome,
+        'etiquetas': etiquetas
+    })
+
 def get_etiq(request, id_etiq):
     etiqueta = Etiqueta.objects.get(id=id_etiq)
     
