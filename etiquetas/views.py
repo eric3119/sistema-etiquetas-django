@@ -18,8 +18,6 @@ logger = logging.getLogger(__name__)
 
 def home(request):
 
-    title = 'Sistema de etiquetas'
-
     etiquetas = Etiqueta.objects.order_by('id')
 
     count_enviados = len(Etiqueta.objects.exclude(data_gerado=None))
@@ -31,7 +29,7 @@ def home(request):
         pass
     
     return render(request, 'etiquetas.html', {
-        'title': title,
+        'title': 'Sistema de etiquetas',
         'etiquetas': etiquetas,
         'count_enviados': count_enviados,
         'count_pendentes': count_pendentes,
@@ -39,33 +37,44 @@ def home(request):
 
 def envios(request):
 
-    title = 'Envios'
-
     etiquetas = Etiqueta.objects.exclude(data_gerado=None)
+
+    count_enviados = len(etiquetas)
+    count_pendentes = 0
+
+    try:
+        count_pendentes = len(Etiqueta.objects.filter(data_gerado=None))
+    except Etiqueta.DoesNotExist:
+        pass
     
-    return render(request, 'envios.html', {
-        'title': title,
-        'etiquetas': etiquetas
+    return render(request, 'etiquetas.html', {
+        'title': 'Enviados',
+        'etiquetas': etiquetas,
+        'count_enviados': count_enviados,
+        'count_pendentes': count_pendentes,
     })
 
 def pendentes(request):
 
-    title = 'Pendentes'
-
+    count_enviados = len(Etiqueta.objects.exclude(data_gerado=None))
+    count_pendentes = 0
+    
     try:
         etiquetas = Etiqueta.objects.filter(data_gerado=None)
+        count_pendentes = len(etiquetas)
     except Etiqueta.DoesNotExist:
         etiquetas = None
     
-    return render(request, 'envios.html', {
-        'title': title,
-        'etiquetas': etiquetas
+    return render(request, 'etiquetas.html', {
+        'title': 'Pendentes',
+        'etiquetas': etiquetas,
+        'count_enviados': count_enviados,
+        'count_pendentes': count_pendentes,
     })
 
 def get_etiq(request, id_etiq):
 
-    erros = []
-    title = 'Detalhes'
+    erros = []    
 
     try:
         etiqueta = Etiqueta.objects.get(id=id_etiq)
@@ -76,7 +85,7 @@ def get_etiq(request, id_etiq):
     return render(request, 'etiq_item.html', {
         'etiqueta': etiqueta,
         'erros': erros,
-        'title': title
+        'title': 'Detalhes'
     })
 
 def delete_etiq(request, id_etiq):
@@ -91,8 +100,6 @@ def delete_etiq(request, id_etiq):
 
 def create_etiq(request):
 
-    title = 'Adicionar'
-
     if request.method == 'POST':        
         form = EtiqForm(request.POST)
 
@@ -105,7 +112,7 @@ def create_etiq(request):
     
     return render(request, 'etiq_form.html', {
         'form': form,
-        'title': title
+        'title': 'Adicionar'
     })
 
 def update_etiq(request, id_etiq):
@@ -124,6 +131,7 @@ def update_etiq(request, id_etiq):
     
     return render(request, 'etiq_form.html', {
         'form': form,
+        'title': 'Atualizar'
     })
 
 def pdf_gen(request, id_etiq):
