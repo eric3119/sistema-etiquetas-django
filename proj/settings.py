@@ -132,5 +132,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    'C:\\Users\\eric.santos\\Desktop\\python3\\sistema-etiquetas-django\\Scripts\\proj\\etiquetas\\templates\\static',
+    os.path.join(BASE_DIR, 'static'),
 ]

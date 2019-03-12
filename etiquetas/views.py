@@ -133,7 +133,7 @@ def pdf_gen(request, id_etiq):
     width, height = A4
     linha = 15
 
-    title = 'etiqueta'+str(etiqueta.id)
+    title = 'etiqueta{}'.format(etiqueta.id)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="'+title+'.pdf"'
