@@ -11,7 +11,13 @@
 </head>
 <body>
     <div class="container">
-        <a href="{% url 'home' %}"><i class="fas fa-chevron-left"></i></a>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+            </ol>
+        </nav>
+        {% if etiqueta %}
         <div class="container">
             <div class="row">
                 <div class="col-sm-1">
@@ -71,17 +77,26 @@
                 </div>
             {% endif %}
         </div>
-        
+        <br>
         <a class="btn btn-primary" href="{% url 'gerar_pdf' etiqueta.id %}"><i class="fas fa-file-pdf"></i></a>
         <a class="btn btn-primary" href="{% url 'atualizar' etiqueta.id %}"><i class="fas fa-pen"></i></a>
-        <a id="btn-delete" class="btn btn-primary" href="{% url 'deletar' etiqueta.id %}"><i class="fas fa-minus-circle"></i></a>
+        <a id="btn-delete" class="btn btn-primary" href="{% url 'deletar' etiqueta.id %}"><i class="fas fa-minus-circle"></i></a>        
+        <script type="text/javascript">
+            $('#btn-delete').click(function (event){
+                if(!confirm('deletar {{ etiqueta.nome }}')){
+                    event.preventDefault();
+                }
+            })
+        </script>
+        {% endif %}
+        {% if erros %}    
+        <a href="{% url 'home' %}"><i class="fas fa-home"></i></a>
+        <div class="container">
+            {% for erro in erros %}
+                {{ erro }}
+            {% endfor %}  
+        </div>    
+        {% endif %}
     </div>
-    <script type="text/javascript">
-        $('#btn-delete').click(function (event){
-            if(!confirm('deletar {{ etiqueta.nome }}')){
-                event.preventDefault();
-            }
-        })
-    </script>
 </body>
 </html>

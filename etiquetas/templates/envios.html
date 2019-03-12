@@ -11,11 +11,20 @@
 </head>
 <body>
     <div class="container">
-        <h1>envios</h1>
+        
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+            </ol>
+        </nav>
+        <h1>{{ title }}</h1>
         <div class="list-group">
-            {% for etiqueta in etiquetas %}
-            <a class="list-group-item list-group-item-action" href="{% url 'detalhes' etiqueta.id %}">{{ etiqueta.nome }}</a>
-            {% endfor %}
+            {% if etiquetas %}
+                {% for etiqueta in etiquetas %}
+                <a class="list-group-item list-group-item-action" href="{% url 'detalhes' etiqueta.id %}">{{ etiqueta.nome }}</a>
+                {% endfor %}
+            {% endif %}
         </div>
     </div>
 </body>

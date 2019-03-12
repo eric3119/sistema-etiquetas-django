@@ -18,40 +18,80 @@ logger = logging.getLogger(__name__)
 
 def home(request):
 
-    nome = 'django'
+    title = 'Sistema de etiquetas'
 
     etiquetas = Etiqueta.objects.order_by('id')
+
+    count_enviados = len(Etiqueta.objects.exclude(data_gerado=None))
+    count_pendentes = 0
+
+    try:
+        count_pendentes = len(Etiqueta.objects.filter(data_gerado=None))
+    except Etiqueta.DoesNotExist:
+        pass
     
     return render(request, 'etiquetas.html', {
-        'nome': nome,
-        'etiquetas': etiquetas
+        'title': title,
+        'etiquetas': etiquetas,
+        'count_enviados': count_enviados,
+        'count_pendentes': count_pendentes,
     })
 
 def envios(request):
 
-    nome = 'envios'
+    title = 'Envios'
 
     etiquetas = Etiqueta.objects.exclude(data_gerado=None)
     
     return render(request, 'envios.html', {
-        'nome': nome,
+        'title': title,
+        'etiquetas': etiquetas
+    })
+
+def pendentes(request):
+
+    title = 'Pendentes'
+
+    try:
+        etiquetas = Etiqueta.objects.filter(data_gerado=None)
+    except Etiqueta.DoesNotExist:
+        etiquetas = None
+    
+    return render(request, 'envios.html', {
+        'title': title,
         'etiquetas': etiquetas
     })
 
 def get_etiq(request, id_etiq):
-    etiqueta = Etiqueta.objects.get(id=id_etiq)
+
+    erros = []
+    title = 'Detalhes'
+
+    try:
+        etiqueta = Etiqueta.objects.get(id=id_etiq)
+    except Etiqueta.DoesNotExist:
+        etiqueta = None
+        erros.append('Não existe')
     
     return render(request, 'etiq_item.html', {
-        'etiqueta': etiqueta
+        'etiqueta': etiqueta,
+        'erros': erros,
+        'title': title
     })
 
 def delete_etiq(request, id_etiq):
-    etiqueta = Etiqueta.objects.get(id=id_etiq)
-    etiqueta.delete()    
+
+    try:
+        etiqueta = Etiqueta.objects.get(id=id_etiq)
+        etiqueta.delete()
+    except Etiqueta.DoesNotExist:        
+        return HttpResponseRedirect('/erro')
     
     return HttpResponseRedirect('/')
 
 def create_etiq(request):
+
+    title = 'Adicionar'
 
     if request.method == 'POST':        
         form = EtiqForm(request.POST)
@@ -65,6 +105,7 @@ def create_etiq(request):
     
     return render(request, 'etiq_form.html', {
         'form': form,
+        'title': title
     })
 
 def update_etiq(request, id_etiq):
@@ -97,11 +138,11 @@ def pdf_gen(request, id_etiq):
     p = canvas.Canvas(buffer)
 
     #p.rect(inch, inch, width-2*inch, height-2*inch)
-    p.drawString(inch, height-inch, 'nome: '+etiqueta.nome)
-    p.drawString(inch, height-inch-cm, 'funcao: '+etiqueta.funcao)
-    p.drawString(inch, height-inch-2*cm, 'email: '+etiqueta.email)
-    p.drawString(inch, height-inch-3*cm, 'orgao: '+etiqueta.orgao)
-    p.drawString(inch, height-inch-4*cm, 'endereco: '+etiqueta.endereco)
+    p.drawString(inch, height-inch, 'Nome: '+etiqueta.nome)
+    p.drawString(inch, height-inch-cm, 'Função: '+etiqueta.funcao)
+    p.drawString(inch, height-inch-2*cm, 'Email: '+etiqueta.email)
+    p.drawString(inch, height-inch-3*cm, 'Orgão: '+etiqueta.orgao)
+    p.drawString(inch, height-inch-4*cm, 'Endereco: '+etiqueta.endereco)
 
     p.showPage()
     p.save()
@@ -115,3 +156,8 @@ def pdf_gen(request, id_etiq):
         etiqueta.save()
 
     return response
+
+def erro(request):
+    return render(request, 'erro.html', {
+        'teste': 'teste'
+    })

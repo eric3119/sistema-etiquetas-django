@@ -12,22 +12,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>lista</h1>        
-        <div class="list-group">
-            {% for etiqueta in etiquetas %}
-            <a class="list-group-item list-group-item-action" href="{% url 'detalhes' etiqueta.id %}">{{ etiqueta.nome }}</a>
-            {% endfor %}            
-        </div>
-        <br>
-        <a class="btn btn-primary" href="{% url 'criar' %}"><i class="fas fa-plus"></i></a>
-        <a class="btn btn-primary" href="{% url 'envios' %}">
-            Enviados
-            <span class="badge badge-light">{{count_enviados}}</span>
-        </a>
-        <a class="btn btn-primary" href="{% url 'pendentes' %}">
-            Pendentes
-            <span class="badge badge-light">{{count_pendentes}}</span>
-        </a>
+        <a href="{% url 'home' %}"><i class="fas fa-home"></i></a>
+        {{ teste }}
     </div>
 </body>
 </html>

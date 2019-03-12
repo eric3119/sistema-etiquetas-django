@@ -11,10 +11,17 @@
 </head>
 <body>
     <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+            </ol>
+        </nav>
         <form action="" method="post">
             <div class="form-group">
                 {% csrf_token %}            
-                {{ form }}            
+                {{ form }}
+                <br>
                 <input type="submit" class="btn btn-primary" value="Submit" />
             </div>
         </form>
