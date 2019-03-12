@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'etiquetas',
+    'jquery',
 ]
 
 MIDDLEWARE = [
@@ -129,3 +130,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    'C:\\Users\\eric.santos\\Desktop\\python3\\sistema-etiquetas-django\\Scripts\\proj\\etiquetas\\templates\\static',
+]

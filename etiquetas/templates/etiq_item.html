@@ -5,26 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <script src="{{ STATIC_URL }} /static/jquery/jquery-3.3.1.min.js"></script>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>{{ title }}</title>
 </head>
 <body>
     <div class="container">
-        <a href="/"><i class="fas fa-chevron-left"></i></a>
-        <ul>
-            <li>{{ etiqueta.nome }}</li>
-            <li>{{ etiqueta.funcao }}</li>
-            <li>{{ etiqueta.email }}</li>
-            <li>{{ etiqueta.orgao }}</li>
-            <li>{{ etiqueta.endereco }}</li>
-            <li>{{ etiqueta.data_adicionado }}</li>
+        <a href="{% url 'home' %}"><i class="fas fa-chevron-left"></i></a>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-1">
+                    Nome: 
+                </div>
+                <div class="col">
+                    {{ etiqueta.nome }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-1">
+                        Função: 
+                </div>
+                <div class="col">
+                    {{ etiqueta.funcao }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-1">
+                    Email: 
+                </div>
+                <div class="col">
+                    {{ etiqueta.email }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-1">
+                    Orgão: 
+                </div>
+                <div class="col">
+                    {{ etiqueta.orgao }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-1">
+                    Endereço: 
+                </div>
+                <div class="col">
+                    {{ etiqueta.endereco }}
+                </div>
+            </div>
+            <!--div class="row">
+                <div class="col-sm-1">
+                </div>
+                <div class="col">
+                    {{ etiqueta.data_adicionado }}
+                </div>
+            </div-->
             {% if etiqueta.data_gerado %}
-                <li>{{ etiqueta.data_gerado }}</li>
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        Enviado em: 
+                    </div>
+                    <div class="col">
+                        {{ etiqueta.data_gerado }}
+                    </div>
+                </div>
             {% endif %}
-        </ul>
-        <a class="btn btn-primary" href="/pdf/{{ etiqueta.id }}"><i class="fas fa-file-pdf"></i></a>
-        <a class="btn btn-primary" href="/update/{{ etiqueta.id }}"><i class="fas fa-pen"></i></a>
-        <a class="btn btn-primary" href="/delete/{{ etiqueta.id }}"><i class="fas fa-minus-circle"></i></a>
+        </div>
+        
+        <a class="btn btn-primary" href="{% url 'gerar_pdf' etiqueta.id %}"><i class="fas fa-file-pdf"></i></a>
+        <a class="btn btn-primary" href="{% url 'atualizar' etiqueta.id %}"><i class="fas fa-pen"></i></a>
+        <a id="btn-delete" class="btn btn-primary" href="{% url 'deletar' etiqueta.id %}"><i class="fas fa-minus-circle"></i></a>
     </div>
+    <script type="text/javascript">
+        $('#btn-delete').click(function (event){
+            if(!confirm('deletar {{ etiqueta.nome }}')){
+                event.preventDefault();
+            }
+        })
+    </script>
 </body>
 </html>
