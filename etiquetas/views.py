@@ -100,6 +100,14 @@ def delete_etiq(request, id_etiq):
 
 def create_etiq(request):
 
+    count_enviados = len(Etiqueta.objects.exclude(data_gerado=None))
+    count_pendentes = 0
+
+    try:
+        count_pendentes = len(Etiqueta.objects.filter(data_gerado=None))
+    except Etiqueta.DoesNotExist:
+        pass
+
     if request.method == 'POST':        
         form = EtiqForm(request.POST)
 
@@ -112,7 +120,9 @@ def create_etiq(request):
     
     return render(request, 'etiq_form.html', {
         'form': form,
-        'title': 'Adicionar'
+        'title': 'Adicionar',
+        'count_enviados': count_enviados,
+        'count_pendentes': count_pendentes,
     })
 
 def update_etiq(request, id_etiq):
