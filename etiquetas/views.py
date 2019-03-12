@@ -129,20 +129,25 @@ def update_etiq(request, id_etiq):
 def pdf_gen(request, id_etiq):
 
     etiqueta = Etiqueta.objects.get(id=id_etiq)
-    width, height = A4    
+    
+    width, height = A4
+    linha = 15
+
+    title = 'etiqueta'+str(etiqueta.id)
 
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="'+etiqueta.nome+'.pdf"'
+    response['Content-Disposition'] = 'inline; filename="'+title+'.pdf"'
 
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer)
-
+    
+    p.setTitle(title)
     #p.rect(inch, inch, width-2*inch, height-2*inch)
     p.drawString(inch, height-inch, 'Nome: '+etiqueta.nome)
-    p.drawString(inch, height-inch-cm, 'Função: '+etiqueta.funcao)
-    p.drawString(inch, height-inch-2*cm, 'Email: '+etiqueta.email)
-    p.drawString(inch, height-inch-3*cm, 'Orgão: '+etiqueta.orgao)
-    p.drawString(inch, height-inch-4*cm, 'Endereco: '+etiqueta.endereco)
+    p.drawString(inch, height-inch-linha, 'Função: '+etiqueta.funcao)
+    p.drawString(inch, height-inch-2*linha, 'Email: '+etiqueta.email)
+    p.drawString(inch, height-inch-3*linha, 'Orgão: '+etiqueta.orgao)
+    p.drawString(inch, height-inch-4*linha, 'Endereco: '+etiqueta.endereco)
 
     p.showPage()
     p.save()
