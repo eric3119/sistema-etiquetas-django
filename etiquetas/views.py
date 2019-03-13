@@ -189,8 +189,7 @@ def pdf_gen(request, id_etiq):
         'Função: '+destinatario.funcao,
         'Email: '+destinatario.email,
         'Orgão: '+destinatario.orgao,
-        'Endereco: '+destinatario.endereco,
-        '',
+        'Endereco: '+destinatario.endereco
     ]
     linhas_remetente= [
         'Remetente',
@@ -201,21 +200,25 @@ def pdf_gen(request, id_etiq):
         'Endereco: '+remetente.endereco
     ]
 
-    tam_linha = 15
+    entre_linhas = 0.7*cm
+    tam_fonte = 14
     linha = 0
 
     p = canvas.Canvas(buffer)
     
     p.setTitle(title)
 
-    p.rect(inch, inch, width-2*inch, height-2*inch+tam_linha)
+    p.rect(inch-2, height-inch-(len(linhas_destinatario)*entre_linhas), width-2*inch, (len(linhas_destinatario)*entre_linhas))
 
+    p.setFont("Arial", tam_fonte)
     for x in linhas_destinatario:
-       p.drawString(inch, height-inch-linha*tam_linha, x)
+       p.drawString(inch, height-inch-linha*entre_linhas, x)
        linha+=1
 
+    linha+=2
+
     for x in linhas_remetente:
-       p.drawString(inch, height-inch-linha*tam_linha, x)
+       p.drawString(inch, height-inch-linha*entre_linhas, x)
        linha+=1   
 
     p.showPage()
