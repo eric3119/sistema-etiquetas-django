@@ -210,7 +210,6 @@ def pdf_gen(request, id_etiq):
 
     p.rect(inch-2, height-inch-(len(linhas_destinatario)*entre_linhas), width-2*inch, (len(linhas_destinatario)*entre_linhas))
 
-    p.setFont("Arial", tam_fonte)
     for x in linhas_destinatario:
        p.drawString(inch, height-inch-linha*entre_linhas, x)
        linha+=1
