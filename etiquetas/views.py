@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .models import Destinatario, Rementente
-from .forms import EtiqForm, DestinatarioForm, RemententeForm
+from .models import Destinatario, Remetente
+from .forms import EtiqForm, DestinatarioForm, RemetenteForm
 
 import io
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect
@@ -90,17 +90,17 @@ def get_etiq(request, id_etiq):
 
 def delete_etiq(request, id_etiq):
 
-    id_rementente = None
+    id_remetente = None
 
     try:        
         etiqueta = Destinatario.objects.get(id=id_etiq)
-        id_rementente = etiqueta.id_rementente
+        id_remetente = etiqueta.id_remetente
         etiqueta.delete()        
     except Destinatario.DoesNotExist:        
         return HttpResponseRedirect('/erro')
     
-    if rementente:
-        remetente = Rementente.objects.get(id=id_rementente)
+    if remetente:
+        remetente = Remetente.objects.get(id=id_remetente)
         remetente.delete()
         return HttpResponseRedirect('/')
 
@@ -153,29 +153,28 @@ def update_etiq(request, id_etiq):
 def pdf_gen(request, id_etiq):
 
     destinatario = Destinatario.objects.get(id=id_etiq)
-    rementente = None
+    remetente = None
     try:
-        rementente = Rementente.objects.get(id=destinatario.id_rementente)
-    except Rementente.DoesNotExist:
+        remetente = Remetente.objects.get(id=destinatario.id_remetente)
+    except Remetente.DoesNotExist:
         pass
     
-    if not rementente:
+    if not remetente:
 
         if request.method == 'POST':
-            form = RemententeForm(request.POST)
+            form = RemetenteForm(request.POST)
 
             if form.is_valid():            
                 new_dest = form.save()
-                Destinatario.objects.filter(id=id_etiq).update(id_rementente=new_dest.pk)
+                Destinatario.objects.filter(id=id_etiq).update(id_remetente=new_dest.pk)
             return HttpResponseRedirect('/pdf/{}'.format(id_etiq))
         else:
             return render(request, 'etiq_form.html', {
-                'form': RemententeForm(),
-                'title': 'Rementente'
+                'form': RemetenteForm(),
+                'title': 'Remetente'
             })
 
     width, height = A4
-    linha = 15
 
     title = 'etiqueta{}'.format(destinatario.id)
 
@@ -183,20 +182,41 @@ def pdf_gen(request, id_etiq):
     response['Content-Disposition'] = 'inline; filename="'+title+'.pdf"'
 
     buffer = io.BytesIO()
+
+    linhas_destinatario = [
+        'Destinatário',
+        'Nome: '+destinatario.nome,
+        'Função: '+destinatario.funcao,
+        'Email: '+destinatario.email,
+        'Orgão: '+destinatario.orgao,
+        'Endereco: '+destinatario.endereco,
+        '',
+    ]
+    linhas_remetente= [
+        'Remetente',
+        'Nome: '+remetente.nome,
+        'Função: '+remetente.funcao,
+        'Email: '+remetente.email,
+        'Orgão: '+remetente.orgao,
+        'Endereco: '+remetente.endereco
+    ]
+
+    tam_linha = 15
+    linha = 0
+
     p = canvas.Canvas(buffer)
     
     p.setTitle(title)
-    p.drawString(inch, height-inch, 'Nome: '+destinatario.nome)
-    p.drawString(inch, height-inch-linha, 'Função: '+destinatario.funcao)
-    p.drawString(inch, height-inch-2*linha, 'Email: '+destinatario.email)
-    p.drawString(inch, height-inch-3*linha, 'Orgão: '+destinatario.orgao)
-    p.drawString(inch, height-inch-4*linha, 'Endereco: '+destinatario.endereco)
-    
-    p.drawString(inch, height-inch-6*linha, 'Nome: '+rementente.nome)
-    p.drawString(inch, height-inch-7*linha, 'Função: '+rementente.funcao)
-    p.drawString(inch, height-inch-8*linha, 'Email: '+rementente.email)
-    p.drawString(inch, height-inch-9*linha, 'Orgão: '+rementente.orgao)
-    p.drawString(inch, height-inch-10*linha, 'Endereco: '+rementente.endereco)
+
+    p.rect(inch, inch, width-2*inch, height-2*inch+tam_linha)
+
+    for x in linhas_destinatario:
+       p.drawString(inch, height-inch-linha*tam_linha, x)
+       linha+=1
+
+    for x in linhas_remetente:
+       p.drawString(inch, height-inch-linha*tam_linha, x)
+       linha+=1   
 
     p.showPage()
     p.save()

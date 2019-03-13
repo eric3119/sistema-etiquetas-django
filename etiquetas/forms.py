@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from .models import Destinatario, Rementente
+from .models import Destinatario, Remetente
 
 class EtiqForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -10,13 +10,13 @@ class EtiqForm(ModelForm):
         model = Destinatario
         fields = ['nome', 'funcao', 'email', 'orgao', 'endereco']
 
-class RemententeForm(ModelForm):
+class RemetenteForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        super(RemententeForm, self).__init__(*args, **kwargs)
+        super(RemetenteForm, self).__init__(*args, **kwargs)
         for visible in self.visible_fields():
             visible.field.widget.attrs['class'] = 'form-control col-sm-6'
     class Meta:
-        model = Rementente
+        model = Remetente
         fields = ['nome', 'funcao', 'email', 'orgao', 'endereco']
 
 class DestinatarioForm(ModelForm):
