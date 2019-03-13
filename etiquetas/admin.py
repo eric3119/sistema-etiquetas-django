@@ -1,4 +1,5 @@
 from django.contrib import admin
-from .models import Etiqueta
+from .models import Destinatario, Rementente
 
-admin.site.register(Etiqueta)
+admin.site.register(Destinatario)
+admin.site.register(Rementente)

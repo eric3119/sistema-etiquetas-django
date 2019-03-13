@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from .models import Etiqueta
+from .models import Destinatario, Rementente
+from .forms import EtiqForm, DestinatarioForm, RemententeForm
 
 import io
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect
@@ -8,7 +9,6 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch, cm
 
-from .forms import EtiqForm
 
 from django.utils import timezone
 import pytz
@@ -18,14 +18,14 @@ logger = logging.getLogger(__name__)
 
 def home(request):
 
-    etiquetas = Etiqueta.objects.order_by('id')
+    etiquetas = Destinatario.objects.order_by('id')
 
-    count_enviados = len(Etiqueta.objects.exclude(data_gerado=None))
+    count_enviados = len(Destinatario.objects.exclude(data_gerado=None))
     count_pendentes = 0
 
     try:
-        count_pendentes = len(Etiqueta.objects.filter(data_gerado=None))
-    except Etiqueta.DoesNotExist:
+        count_pendentes = len(Destinatario.objects.filter(data_gerado=None))
+    except Destinatario.DoesNotExist:
         pass
     
     return render(request, 'etiquetas.html', {
@@ -37,14 +37,14 @@ def home(request):
 
 def envios(request):
 
-    etiquetas = Etiqueta.objects.exclude(data_gerado=None)
+    etiquetas = Destinatario.objects.exclude(data_gerado=None)
 
     count_enviados = len(etiquetas)
     count_pendentes = 0
 
     try:
-        count_pendentes = len(Etiqueta.objects.filter(data_gerado=None))
-    except Etiqueta.DoesNotExist:
+        count_pendentes = len(Destinatario.objects.filter(data_gerado=None))
+    except Destinatario.DoesNotExist:
         pass
     
     return render(request, 'etiquetas.html', {
@@ -56,13 +56,13 @@ def envios(request):
 
 def pendentes(request):
 
-    count_enviados = len(Etiqueta.objects.exclude(data_gerado=None))
+    count_enviados = len(Destinatario.objects.exclude(data_gerado=None))
     count_pendentes = 0
     
     try:
-        etiquetas = Etiqueta.objects.filter(data_gerado=None)
+        etiquetas = Destinatario.objects.filter(data_gerado=None)
         count_pendentes = len(etiquetas)
-    except Etiqueta.DoesNotExist:
+    except Destinatario.DoesNotExist:
         etiquetas = None
     
     return render(request, 'etiquetas.html', {
@@ -77,8 +77,8 @@ def get_etiq(request, id_etiq):
     erros = []    
 
     try:
-        etiqueta = Etiqueta.objects.get(id=id_etiq)
-    except Etiqueta.DoesNotExist:
+        etiqueta = Destinatario.objects.get(id=id_etiq)
+    except Destinatario.DoesNotExist:
         etiqueta = None
         erros.append('Não existe')
     
@@ -90,22 +90,28 @@ def get_etiq(request, id_etiq):
 
 def delete_etiq(request, id_etiq):
 
-    try:
-        etiqueta = Etiqueta.objects.get(id=id_etiq)
-        etiqueta.delete()
-    except Etiqueta.DoesNotExist:        
+    id_rementente = None
+
+    try:        
+        etiqueta = Destinatario.objects.get(id=id_etiq)
+        id_rementente = etiqueta.id_rementente
+        etiqueta.delete()        
+    except Destinatario.DoesNotExist:        
         return HttpResponseRedirect('/erro')
     
-    return HttpResponseRedirect('/')
+    if rementente:
+        remetente = Rementente.objects.get(id=id_rementente)
+        remetente.delete()
+        return HttpResponseRedirect('/')
 
 def create_etiq(request):
 
-    count_enviados = len(Etiqueta.objects.exclude(data_gerado=None))
+    count_enviados = len(Destinatario.objects.exclude(data_gerado=None))
     count_pendentes = 0
 
     try:
-        count_pendentes = len(Etiqueta.objects.filter(data_gerado=None))
-    except Etiqueta.DoesNotExist:
+        count_pendentes = len(Destinatario.objects.filter(data_gerado=None))
+    except Destinatario.DoesNotExist:
         pass
 
     if request.method == 'POST':        
@@ -120,17 +126,17 @@ def create_etiq(request):
     
     return render(request, 'etiq_form.html', {
         'form': form,
-        'title': 'Adicionar',
+        'title': 'Adicionar Destinatário',
         'count_enviados': count_enviados,
         'count_pendentes': count_pendentes,
     })
 
 def update_etiq(request, id_etiq):
 
-    etiqueta = Etiqueta.objects.get(id=id_etiq)
+    etiqueta = Destinatario.objects.get(id=id_etiq)
     
     if request.method == 'POST':
-        form = EtiqForm(request.POST, instance=etiqueta)
+        form = EtiqForm(request.POST)
 
         if form.is_valid():            
             form.save()
@@ -146,12 +152,32 @@ def update_etiq(request, id_etiq):
 
 def pdf_gen(request, id_etiq):
 
-    etiqueta = Etiqueta.objects.get(id=id_etiq)
+    destinatario = Destinatario.objects.get(id=id_etiq)
+    rementente = None
+    try:
+        rementente = Rementente.objects.get(id=destinatario.id_rementente)
+    except Rementente.DoesNotExist:
+        pass
     
+    if not rementente:
+
+        if request.method == 'POST':
+            form = RemententeForm(request.POST)
+
+            if form.is_valid():            
+                new_dest = form.save()
+                Destinatario.objects.filter(id=id_etiq).update(id_rementente=new_dest.pk)
+            return HttpResponseRedirect('/pdf/{}'.format(id_etiq))
+        else:
+            return render(request, 'etiq_form.html', {
+                'form': RemententeForm(),
+                'title': 'Rementente'
+            })
+
     width, height = A4
     linha = 15
 
-    title = 'etiqueta{}'.format(etiqueta.id)
+    title = 'etiqueta{}'.format(destinatario.id)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="'+title+'.pdf"'
@@ -160,12 +186,17 @@ def pdf_gen(request, id_etiq):
     p = canvas.Canvas(buffer)
     
     p.setTitle(title)
-    #p.rect(inch, inch, width-2*inch, height-2*inch)
-    p.drawString(inch, height-inch, 'Nome: '+etiqueta.nome)
-    p.drawString(inch, height-inch-linha, 'Função: '+etiqueta.funcao)
-    p.drawString(inch, height-inch-2*linha, 'Email: '+etiqueta.email)
-    p.drawString(inch, height-inch-3*linha, 'Orgão: '+etiqueta.orgao)
-    p.drawString(inch, height-inch-4*linha, 'Endereco: '+etiqueta.endereco)
+    p.drawString(inch, height-inch, 'Nome: '+destinatario.nome)
+    p.drawString(inch, height-inch-linha, 'Função: '+destinatario.funcao)
+    p.drawString(inch, height-inch-2*linha, 'Email: '+destinatario.email)
+    p.drawString(inch, height-inch-3*linha, 'Orgão: '+destinatario.orgao)
+    p.drawString(inch, height-inch-4*linha, 'Endereco: '+destinatario.endereco)
+    
+    p.drawString(inch, height-inch-6*linha, 'Nome: '+rementente.nome)
+    p.drawString(inch, height-inch-7*linha, 'Função: '+rementente.funcao)
+    p.drawString(inch, height-inch-8*linha, 'Email: '+rementente.email)
+    p.drawString(inch, height-inch-9*linha, 'Orgão: '+rementente.orgao)
+    p.drawString(inch, height-inch-10*linha, 'Endereco: '+rementente.endereco)
 
     p.showPage()
     p.save()
@@ -174,9 +205,9 @@ def pdf_gen(request, id_etiq):
     buffer.close()
     response.write(pdf)
 
-    if etiqueta.data_gerado == None:
-        etiqueta.data_gerado = timezone.now()
-        etiqueta.save()
+    if destinatario.data_gerado == None:
+        destinatario.data_gerado = timezone.now()
+        destinatario.save()
 
     return response
 
