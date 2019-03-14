@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .models import Destinatario, Remetente
-from .forms import EtiqForm, DestinatarioForm, RemetenteForm
+from .forms import DestinatarioForm, RemetenteForm
 
 import io
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect
@@ -94,15 +94,19 @@ def delete_etiq(request, id_etiq):
 
     try:        
         etiqueta = Destinatario.objects.get(id=id_etiq)
-        id_remetente = etiqueta.id_remetente
+        id_remetente = etiqueta.id_remetente        
         etiqueta.delete()        
     except Destinatario.DoesNotExist:        
         return HttpResponseRedirect('/erro')
     
-    if remetente:
+    try:
         remetente = Remetente.objects.get(id=id_remetente)
         remetente.delete()
-        return HttpResponseRedirect('/')
+    except Remetente.DoesNotExist:
+        pass
+    
+    return HttpResponseRedirect('/')
+    
 
 def create_etiq(request):
 
@@ -115,14 +119,14 @@ def create_etiq(request):
         pass
 
     if request.method == 'POST':        
-        form = EtiqForm(request.POST)
+        form = DestinatarioForm(request.POST)
 
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/')
     
     else:
-        form = EtiqForm()
+        form = DestinatarioForm()
     
     return render(request, 'etiq_form.html', {
         'form': form,
@@ -136,14 +140,14 @@ def update_etiq(request, id_etiq):
     etiqueta = Destinatario.objects.get(id=id_etiq)
     
     if request.method == 'POST':
-        form = EtiqForm(request.POST)
+        form = DestinatarioForm(request.POST, instance=etiqueta)
 
         if form.is_valid():            
             form.save()
             return HttpResponseRedirect('/etiqueta/{}'.format(id_etiq))
     
     else:        
-        form = EtiqForm(instance=etiqueta)
+        form = DestinatarioForm(instance=etiqueta)
     
     return render(request, 'etiq_form.html', {
         'form': form,
