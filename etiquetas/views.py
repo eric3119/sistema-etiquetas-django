@@ -137,7 +137,10 @@ def create_etiq(request):
 
 def update_etiq(request, id_etiq):
 
-    etiqueta = Destinatario.objects.get(id=id_etiq)
+    try:
+        etiqueta = Destinatario.objects.get(id=id_etiq)
+    except Destinatario.DoesNotExist:        
+        return HttpResponseRedirect('/erro')
     
     if request.method == 'POST':
         form = DestinatarioForm(request.POST, instance=etiqueta)
@@ -156,15 +159,16 @@ def update_etiq(request, id_etiq):
 
 def pdf_gen(request, id_etiq):
 
-    destinatario = Destinatario.objects.get(id=id_etiq)
+    destinatario = None
+    try:
+        destinatario = Destinatario.objects.get(id=id_etiq)
+    except Destinatario.DoesNotExist:        
+        return HttpResponseRedirect('/erro')
+
     remetente = None
     try:
         remetente = Remetente.objects.get(id=destinatario.id_remetente)
-    except Remetente.DoesNotExist:
-        pass
-    
-    if not remetente:
-
+    except Remetente.DoesNotExist:    
         if request.method == 'POST':
             form = RemetenteForm(request.POST)
 
@@ -177,7 +181,8 @@ def pdf_gen(request, id_etiq):
                 'form': RemetenteForm(),
                 'title': 'Remetente'
             })
-
+    
+    
     width, height = A4
 
     title = 'etiqueta{}'.format(destinatario.id)
@@ -185,48 +190,24 @@ def pdf_gen(request, id_etiq):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="'+title+'.pdf"'
 
-    buffer = io.BytesIO()
-
     linhas_destinatario = [
-        'Destinatário',
-        'Nome: '+destinatario.nome,
-        'Função: '+destinatario.funcao,
-        'Email: '+destinatario.email,
-        'Orgão: '+destinatario.orgao,
-        'Endereco: '+destinatario.endereco
+        ['Destinatário'],
+        ['Nome: '+destinatario.nome],
+        ['Função: '+destinatario.funcao],
+        ['Email: '+destinatario.email],
+        ['Orgão: '+destinatario.orgao],
+        ['Endereco: '+destinatario.endereco]
     ]
     linhas_remetente= [
-        'Remetente',
-        'Nome: '+remetente.nome,
-        'Função: '+remetente.funcao,
-        'Email: '+remetente.email,
-        'Orgão: '+remetente.orgao,
-        'Endereco: '+remetente.endereco
+        ['Remetente'],
+        ['Nome: '+remetente.nome],
+        ['Função: '+remetente.funcao],
+        ['Email: '+remetente.email],
+        ['Orgão: '+remetente.orgao],
+        ['Endereco: '+remetente.endereco]
     ]
 
-    entre_linhas = 0.7*cm
-    tam_fonte = 14
-    linha = 0
-
-    p = canvas.Canvas(buffer)
-    
-    p.setTitle(title)
-
-    p.rect(inch-2, height-inch-(len(linhas_destinatario)*entre_linhas), width-2*inch, (len(linhas_destinatario)*entre_linhas))
-
-    for x in linhas_destinatario:
-       p.drawString(inch, height-inch-linha*entre_linhas, x)
-       linha+=1
-
-    linha+=2
-
-    for x in linhas_remetente:
-       p.drawString(inch, height-inch-linha*entre_linhas, x)
-       linha+=1   
-
-    p.showPage()
-    p.save()
-
+    buffer = create_pdf_buffer(linhas_remetente, linhas_destinatario, title)
     pdf = buffer.getvalue()
     buffer.close()
     response.write(pdf)
@@ -236,6 +217,66 @@ def pdf_gen(request, id_etiq):
         destinatario.save()
 
     return response
+
+def create_pdf_buffer(remetente, destinatario, title):
+    # Sample platypus document
+    # From the FAQ at reportlab.org/oss/rl-toolkit/faq/#1.1
+
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib import colors
+    from reportlab.rl_config import defaultPageSize
+    from reportlab.lib.units import inch
+    from reportlab.lib.pagesizes import A4
+
+    width, height = A4
+
+    PAGE_WIDTH, PAGE_HEIGHT = defaultPageSize
+
+    styles = getSampleStyleSheet()
+
+    ############
+    def editCanvas(canvas, doc):
+        canvas.saveState()
+        canvas.setTitle(title)
+        canvas.restoreState()
+
+    
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer)
+    
+    Story = []
+    
+    t=Table(remetente,[width-2*inch], len(destinatario)*[0.4*inch])
+    
+    t.setStyle(
+        TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('INNERGRID', (0,0), (-1,-1), 0.25, colors.white),
+            ('BOX', (0,0), (-1,-1), 0.25, colors.black),
+        ])
+    )
+
+    Story.append(t)
+
+    Story.append(Spacer(1,0.5*inch))    
+
+    t=Table(destinatario,[width-2*inch], len(destinatario)*[0.4*inch])
+    
+    t.setStyle(
+        TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('INNERGRID', (0,0), (-1,-1), 0.25, colors.white),
+            ('BOX', (0,0), (-1,-1), 0.25, colors.black),
+        ])
+    )
+
+    Story.append(t)
+    
+    doc.build(Story, onFirstPage=editCanvas)
+    
+    return buffer
+
 
 def erro(request):
     return render(request, 'erro.html', {
