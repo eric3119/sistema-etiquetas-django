@@ -191,20 +191,20 @@ def pdf_gen(request, id_etiq):
     response['Content-Disposition'] = 'inline; filename="'+title+'.pdf"'
 
     linhas_destinatario = [
-        ['Destinatário'],
+        ['DESTINATÁRIO'],
         ['Nome: '+destinatario.nome],
         ['Função: '+destinatario.funcao],
-        ['Email: '+destinatario.email],
+        ['Endereco: '+destinatario.endereco],
         ['Orgão: '+destinatario.orgao],
-        ['Endereco: '+destinatario.endereco]
+        ['Email: '+destinatario.email],
     ]
     linhas_remetente= [
-        ['Remetente'],
+        ['REMETENTE'],
         ['Nome: '+remetente.nome],
         ['Função: '+remetente.funcao],
-        ['Email: '+remetente.email],
+        ['Endereco: '+remetente.endereco],
         ['Orgão: '+remetente.orgao],
-        ['Endereco: '+remetente.endereco]
+        ['Email: '+remetente.email],
     ]
 
     buffer = create_pdf_buffer(linhas_remetente, linhas_destinatario, title)
@@ -251,6 +251,8 @@ def create_pdf_buffer(remetente, destinatario, title):
     
     t.setStyle(
         TableStyle([
+            ('BACKGROUND',(0,0),(0,0),colors.gray),
+            ('TEXTCOLOR',(0,0),(0,0),colors.white),
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
             ('INNERGRID', (0,0), (-1,-1), 0.25, colors.white),
             ('BOX', (0,0), (-1,-1), 0.25, colors.black),
@@ -265,6 +267,8 @@ def create_pdf_buffer(remetente, destinatario, title):
     
     t.setStyle(
         TableStyle([
+            ('BACKGROUND',(0,0),(0,0),colors.gray),
+            ('TEXTCOLOR',(0,0),(0,0),colors.white),
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
             ('INNERGRID', (0,0), (-1,-1), 0.25, colors.white),
             ('BOX', (0,0), (-1,-1), 0.25, colors.black),
