@@ -16,24 +16,26 @@ import pytz
 import logging
 logger = logging.getLogger(__name__)
 
-def home(request):
+from django.views.generic import TemplateView, ListView, DetailView, UpdateView
 
-    etiquetas = Destinatario.objects.order_by('id')
+class DestinatariosView(ListView):
+
+    model=Destinatario
+    template_name = 'destinatarios.html'
 
     count_enviados = len(Destinatario.objects.exclude(data_gerado=None))
-    count_pendentes = 0
-
-    try:
-        count_pendentes = len(Destinatario.objects.filter(data_gerado=None))
-    except Destinatario.DoesNotExist:
-        pass
     
-    return render(request, 'etiquetas.html', {
-        'title': 'Sistema de etiquetas',
-        'etiquetas': etiquetas,
-        'count_enviados': count_enviados,
-        'count_pendentes': count_pendentes,
-    })
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['count_enviados'] = len(Destinatario.objects.exclude(data_gerado=None))         
+        try:
+            context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
+        except Destinatario.DoesNotExist:
+            context['count_pendentes'] = 0
+
+        return context
 
 def envios(request):
 

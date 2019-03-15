@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import home, get_etiq, create_etiq, update_etiq, delete_etiq, pdf_gen, envios, pendentes, erro
+from .views import get_etiq, create_etiq, update_etiq, delete_etiq, pdf_gen, envios, pendentes, erro
+from .views import DestinatariosView
 
 urlpatterns = [
-    path('', home, name='home'),
+    path('', DestinatariosView.as_view(), name='home'),
     path('etiqueta/<int:id_etiq>/', get_etiq, name='detalhes'),
     path('envios/', envios, name='envios'),
     path('pendentes/', pendentes, name='pendentes'),
