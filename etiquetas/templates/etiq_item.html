@@ -17,14 +17,14 @@
                 <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
             </ol>
         </nav>
-        {% if etiqueta %}
+        
         <div class="container">
             <div class="row">
                 <div class="col-sm-1">
                     Nome: 
                 </div>
                 <div class="col">
-                    {{ etiqueta.nome }}
+                    {{ object.nome }}
                 </div>
             </div>
             <div class="row">
@@ -32,7 +32,7 @@
                         Função: 
                 </div>
                 <div class="col">
-                    {{ etiqueta.funcao }}
+                    {{ object.funcao }}
                 </div>
             </div>
             <div class="row">
@@ -40,7 +40,7 @@
                     Email: 
                 </div>
                 <div class="col">
-                    {{ etiqueta.email }}
+                    {{ object.email }}
                 </div>
             </div>
             <div class="row">
@@ -48,7 +48,7 @@
                     Orgão: 
                 </div>
                 <div class="col">
-                    {{ etiqueta.orgao }}
+                    {{ object.orgao }}
                 </div>
             </div>
             <div class="row">
@@ -56,47 +56,39 @@
                     Endereço: 
                 </div>
                 <div class="col">
-                    {{ etiqueta.endereco }}
+                    {{ object.endereco }}
                 </div>
             </div>
             <!--div class="row">
                 <div class="col-sm-1">
                 </div>
                 <div class="col">
-                    {{ etiqueta.data_adicionado }}
+                    {{ object.data_adicionado }}
                 </div>
             </div-->
-            {% if etiqueta.data_gerado %}
+            {% if object.data_gerado %}
                 <div class="row align-items-center">
                     <div class="col-auto">
                         Enviado em: 
                     </div>
                     <div class="col">
-                        {{ etiqueta.data_gerado }}
+                        {{ object.data_gerado }}
                     </div>
                 </div>
             {% endif %}
         </div>
         <br>
-        <a class="btn btn-primary" href="{% url 'gerar_pdf' etiqueta.id %}"><i class="fas fa-file-pdf"></i></a>
-        <a class="btn btn-primary" href="{% url 'atualizar' etiqueta.id %}"><i class="fas fa-pen"></i></a>
-        <a id="btn-delete" class="btn btn-primary" href="{% url 'deletar' etiqueta.id %}"><i class="fas fa-minus-circle"></i></a>        
+        <a class="btn btn-primary" href="{% url 'gerar_pdf' object.id %}"><i class="fas fa-file-pdf"></i></a>
+        <a class="btn btn-primary" href="{% url 'atualizar' object.id %}"><i class="fas fa-pen"></i></a>
+        <a id="btn-delete" class="btn btn-primary" href="{% url 'deletar' object.id %}"><i class="fas fa-minus-circle"></i></a>        
         <script type="text/javascript">
             $('#btn-delete').click(function (event){
-                if(!confirm('deletar {{ etiqueta.nome }}')){
+                if(!confirm('deletar {{ object.nome }}')){
                     event.preventDefault();
                 }
             })
         </script>
-        {% endif %}
-        {% if erros %}    
-        <a href="{% url 'home' %}"><i class="fas fa-home"></i></a>
-        <div class="container">
-            {% for erro in erros %}
-                {{ erro }}
-            {% endfor %}  
-        </div>    
-        {% endif %}
+        
     </div>
 </body>
 </html>

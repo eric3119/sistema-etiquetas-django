@@ -71,6 +71,10 @@ def pendentes(request):
         'count_pendentes': count_pendentes,
     })
 
+class DestinatarioDetailView(DetailView):
+    model=Destinatario
+    template_name='etiq_item.html'
+
 def get_etiq(request, id_etiq):
 
     erros = []    
@@ -146,7 +150,7 @@ def update_etiq(request, id_etiq):
 
         if form.is_valid():            
             form.save()
-            return HttpResponseRedirect('/etiqueta/{}'.format(id_etiq))
+            return HttpResponseRedirect('/detalhes/{}'.format(id_etiq))
     
     else:        
         form = DestinatarioForm(instance=etiqueta)
