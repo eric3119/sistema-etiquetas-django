@@ -3,7 +3,7 @@ from .models import Destinatario, Remetente
 from .forms import DestinatarioForm, RemetenteForm
 
 import io
-from django.http import FileResponse, HttpResponse, HttpResponseRedirect
+from django.http import FileResponse, HttpResponse, HttpResponseRedirect, Http404
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
@@ -97,7 +97,7 @@ def delete_etiq(request, id_etiq):
         id_remetente = etiqueta.id_remetente        
         etiqueta.delete()        
     except Destinatario.DoesNotExist:        
-        return HttpResponseRedirect('/erro')
+        raise Http404("id não existe")
     
     try:
         remetente = Remetente.objects.get(id=id_remetente)
@@ -140,7 +140,7 @@ def update_etiq(request, id_etiq):
     try:
         etiqueta = Destinatario.objects.get(id=id_etiq)
     except Destinatario.DoesNotExist:        
-        return HttpResponseRedirect('/erro')
+        raise Http404("id não existe")
     
     if request.method == 'POST':
         form = DestinatarioForm(request.POST, instance=etiqueta)
@@ -163,7 +163,7 @@ def pdf_gen(request, id_etiq):
     try:
         destinatario = Destinatario.objects.get(id=id_etiq)
     except Destinatario.DoesNotExist:        
-        return HttpResponseRedirect('/erro')
+        raise Http404("id não existe")
 
     remetente = None
     try:
@@ -247,7 +247,7 @@ def create_pdf_buffer(remetente, destinatario, title):
     
     Story = []
     
-    t=Table(remetente,[width-2*inch], len(destinatario)*[0.4*inch])
+    t=Table(destinatario,[width-2*inch], len(destinatario)*[0.4*inch])
     
     t.setStyle(
         TableStyle([
@@ -263,7 +263,7 @@ def create_pdf_buffer(remetente, destinatario, title):
 
     Story.append(Spacer(1,0.5*inch))    
 
-    t=Table(destinatario,[width-2*inch], len(destinatario)*[0.4*inch])
+    t=Table(remetente,[width-2*inch], len(destinatario)*[0.4*inch])
     
     t.setStyle(
         TableStyle([
