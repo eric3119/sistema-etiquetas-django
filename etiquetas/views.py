@@ -75,22 +75,6 @@ class DestinatarioDetailView(DetailView):
     model=Destinatario
     template_name='etiq_item.html'
 
-def get_etiq(request, id_etiq):
-
-    erros = []    
-
-    try:
-        etiqueta = Destinatario.objects.get(id=id_etiq)
-    except Destinatario.DoesNotExist:
-        etiqueta = None
-        erros.append('Não existe')
-    
-    return render(request, 'etiq_item.html', {
-        'etiqueta': etiqueta,
-        'erros': erros,
-        'title': 'Detalhes'
-    })
-
 def delete_etiq(request, id_etiq):
 
     id_remetente = None
@@ -138,27 +122,12 @@ def create_etiq(request):
         'count_pendentes': count_pendentes,
     })
 
-def update_etiq(request, id_etiq):
-
-    try:
-        etiqueta = Destinatario.objects.get(id=id_etiq)
-    except Destinatario.DoesNotExist:        
-        raise Http404("id não existe")
-    
-    if request.method == 'POST':
-        form = DestinatarioForm(request.POST, instance=etiqueta)
-
-        if form.is_valid():            
-            form.save()
-            return HttpResponseRedirect('/detalhes/{}'.format(id_etiq))
-    
-    else:        
-        form = DestinatarioForm(instance=etiqueta)
-    
-    return render(request, 'etiq_form.html', {
-        'form': form,
-        'title': 'Atualizar'
-    })
+class DestinatarioUpdateView(UpdateView):
+    model = Destinatario
+    template_name = 'etiq_form.html'
+    form_class = DestinatarioForm
+    #success_url = '/detalhes/{}'.format(pk)
+    success_url = '/'
 
 def pdf_gen(request, id_etiq):
 
