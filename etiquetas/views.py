@@ -23,9 +23,6 @@ class DestinatariosView(ListView):
     model=Destinatario
     template_name = 'destinatarios.html'
 
-    count_enviados = len(Destinatario.objects.exclude(data_gerado=None))
-    
-        
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
