@@ -80,15 +80,7 @@
         <br>
         <a class="btn btn-primary" href="{% url 'gerar_pdf' object.id %}"><i class="fas fa-file-pdf"></i></a>
         <a class="btn btn-primary" href="{% url 'atualizar' object.id %}"><i class="fas fa-pen"></i></a>
-        <a id="btn-delete" class="btn btn-primary" href="{% url 'deletar' object.id %}"><i class="fas fa-minus-circle"></i></a>        
-        <script type="text/javascript">
-            $('#btn-delete').click(function (event){
-                if(!confirm('deletar {{ object.nome }}')){
-                    event.preventDefault();
-                }
-            })
-        </script>
-        
+        <a id="btn-delete" class="btn btn-primary" href="{% url 'deletar' object.id %}"><i class="fas fa-minus-circle"></i></a>                
     </div>
 </body>
 </html>

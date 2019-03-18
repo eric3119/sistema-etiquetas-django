@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, reverse
 from .models import Destinatario, Remetente
 from .forms import DestinatarioForm, RemetenteForm
 
@@ -16,7 +16,8 @@ import pytz
 import logging
 logger = logging.getLogger(__name__)
 
-from django.views.generic import TemplateView, ListView, DetailView, UpdateView
+from django.views.generic import (TemplateView, ListView, DetailView, 
+                                    UpdateView, CreateView, DeleteView)
 
 class DestinatariosView(ListView):
 
@@ -75,59 +76,35 @@ class DestinatarioDetailView(DetailView):
     model=Destinatario
     template_name='etiq_item.html'
 
-def delete_etiq(request, id_etiq):
+class DestinatarioDelete(DeleteView):
+    model=Destinatario
+    template_name='destinatario_confirm_delete.html'
+    success_url='/'
 
-    id_remetente = None
+    def delete(self, request, *args, **kwargs):        
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        id_remetente = self.object.id_remetente   
+        self.object.delete()
+        try:
+            remetente = Remetente.objects.get(id=id_remetente)
+            remetente.delete()
+        except Remetente.DoesNotExist:
+            pass
+        return HttpResponseRedirect(success_url)    
 
-    try:        
-        etiqueta = Destinatario.objects.get(id=id_etiq)
-        id_remetente = etiqueta.id_remetente        
-        etiqueta.delete()        
-    except Destinatario.DoesNotExist:        
-        raise Http404("id não existe")
-    
-    try:
-        remetente = Remetente.objects.get(id=id_remetente)
-        remetente.delete()
-    except Remetente.DoesNotExist:
-        pass
-    
-    return HttpResponseRedirect('/')
-    
-
-def create_etiq(request):
-
-    count_enviados = len(Destinatario.objects.exclude(data_gerado=None))
-    count_pendentes = 0
-
-    try:
-        count_pendentes = len(Destinatario.objects.filter(data_gerado=None))
-    except Destinatario.DoesNotExist:
-        pass
-
-    if request.method == 'POST':        
-        form = DestinatarioForm(request.POST)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/')
-    
-    else:
-        form = DestinatarioForm()
-    
-    return render(request, 'etiq_form.html', {
-        'form': form,
-        'title': 'Adicionar Destinatário',
-        'count_enviados': count_enviados,
-        'count_pendentes': count_pendentes,
-    })
+class DestinatarioCreateView(CreateView):
+    model = Destinatario
+    template_name='etiq_form.html'
+    form_class = DestinatarioForm
+    success_url='/'
 
 class DestinatarioUpdateView(UpdateView):
     model = Destinatario
     template_name = 'etiq_form.html'
-    form_class = DestinatarioForm
-    #success_url = '/detalhes/{}'.format(pk)
-    success_url = '/'
+    form_class = DestinatarioForm    
+    def get_success_url(self):        
+        return reverse('detalhes', kwargs={'pk': self.object.pk})
 
 def pdf_gen(request, id_etiq):
 
