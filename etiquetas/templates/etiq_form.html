@@ -17,15 +17,15 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                <div class="navbar-nav">                    
-                <a class="nav-item nav-link active" href="{% url 'envios' %}">
-                    Enviados <span class="badge badge-secondary">{{count_enviados}}</span>
-                </a>
-                <a class="nav-item nav-link active" href="{% url 'pendentes' %}">
-                    Pendentes
-                    <span class="badge badge-secondary">{{count_pendentes}}</span>
-                </a>
-                <a class="nav-item nav-link active" href="{% url 'criar' %}"><i class="fas fa-plus"></i></a>
+                <div class="navbar-nav">
+                    <a class="nav-item nav-link active" href="{% url 'home' %}?type=enviados">
+                        Enviados <span class="badge badge-secondary">{{count_enviados}}</span>
+                    </a>
+                    <a class="nav-item nav-link active" href="{% url 'home' %}?type=pendentes">
+                        Pendentes
+                        <span class="badge badge-secondary">{{count_pendentes}}</span>
+                    </a>
+                    <a class="nav-item nav-link active" href="{% url 'criar' %}"><i class="fas fa-plus"></i></a>
                 </div>
             </div>
         </nav>

@@ -2,13 +2,9 @@ from django.shortcuts import render, reverse
 from .models import Destinatario, Remetente
 from .forms import DestinatarioForm, RemetenteForm
 
-import io
 from django.http import FileResponse, HttpResponse, HttpResponseRedirect, Http404
 
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import inch, cm
-
+from .criar_pdf import create_pdf_buffer
 
 from django.utils import timezone
 import pytz
@@ -34,43 +30,17 @@ class DestinatariosView(ListView):
             context['count_pendentes'] = 0
 
         return context
-
-def envios(request):
-
-    etiquetas = Destinatario.objects.exclude(data_gerado=None)
-
-    count_enviados = len(etiquetas)
-    count_pendentes = 0
-
-    try:
-        count_pendentes = len(Destinatario.objects.filter(data_gerado=None))
-    except Destinatario.DoesNotExist:
-        pass
     
-    return render(request, 'etiquetas.html', {
-        'title': 'Enviados',
-        'etiquetas': etiquetas,
-        'count_enviados': count_enviados,
-        'count_pendentes': count_pendentes,
-    })
+    def get_queryset(self):
+        queryset = Destinatario.objects.all()
 
-def pendentes(request):
-
-    count_enviados = len(Destinatario.objects.exclude(data_gerado=None))
-    count_pendentes = 0
-    
-    try:
-        etiquetas = Destinatario.objects.filter(data_gerado=None)
-        count_pendentes = len(etiquetas)
-    except Destinatario.DoesNotExist:
-        etiquetas = None
-    
-    return render(request, 'etiquetas.html', {
-        'title': 'Pendentes',
-        'etiquetas': etiquetas,
-        'count_enviados': count_enviados,
-        'count_pendentes': count_pendentes,
-    })
+        if self.request.GET.get('type'):
+            if self.request.GET.get('type') == 'enviados':
+                queryset = queryset.exclude(data_gerado=None)
+            elif self.request.GET.get('type') == 'pendentes':
+                queryset = queryset.filter(data_gerado=None)  
+        
+        return queryset
 
 class DestinatarioDetailView(DetailView):
     model=Destinatario
@@ -81,7 +51,7 @@ class DestinatarioDelete(DeleteView):
     template_name='destinatario_confirm_delete.html'
     success_url='/'
 
-    def delete(self, request, *args, **kwargs):        
+    def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         success_url = self.get_success_url()
         id_remetente = self.object.id_remetente   
@@ -103,15 +73,21 @@ class DestinatarioUpdateView(UpdateView):
     model = Destinatario
     template_name = 'etiq_form.html'
     form_class = DestinatarioForm    
-    def get_success_url(self):        
+    def get_success_url(self):
         return reverse('detalhes', kwargs={'pk': self.object.pk})
+    
+# class RemetenteCreateView(CreateView):
+#     model = Remetente
+#     template_name='etiq_form.html'
+#     form_class = RemetenteForm
+#     success_url='/pdf/'
 
 def pdf_gen(request, id_etiq):
 
     destinatario = None
     try:
         destinatario = Destinatario.objects.get(id=id_etiq)
-    except Destinatario.DoesNotExist:        
+    except Destinatario.DoesNotExist:
         raise Http404("id não existe")
 
     remetente = None
@@ -131,9 +107,6 @@ def pdf_gen(request, id_etiq):
                 'title': 'Remetente'
             })
     
-    
-    width, height = A4
-
     title = 'etiqueta{}'.format(destinatario.id)
 
     response = HttpResponse(content_type='application/pdf')
@@ -166,72 +139,3 @@ def pdf_gen(request, id_etiq):
         destinatario.save()
 
     return response
-
-def create_pdf_buffer(remetente, destinatario, title):
-    # Sample platypus document
-    # From the FAQ at reportlab.org/oss/rl-toolkit/faq/#1.1
-
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-    from reportlab.lib.styles import getSampleStyleSheet
-    from reportlab.lib import colors
-    from reportlab.rl_config import defaultPageSize
-    from reportlab.lib.units import inch
-    from reportlab.lib.pagesizes import A4
-
-    width, height = A4
-
-    PAGE_WIDTH, PAGE_HEIGHT = defaultPageSize
-
-    styles = getSampleStyleSheet()
-
-    ############
-    def editCanvas(canvas, doc):
-        canvas.saveState()
-        canvas.setTitle(title)
-        canvas.restoreState()
-
-    
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer)
-    
-    Story = []
-    
-    t=Table(destinatario,[width-2*inch], len(destinatario)*[0.4*inch])
-    
-    t.setStyle(
-        TableStyle([
-            ('BACKGROUND',(0,0),(0,0),colors.gray),
-            ('TEXTCOLOR',(0,0),(0,0),colors.white),
-            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('INNERGRID', (0,0), (-1,-1), 0.25, colors.white),
-            ('BOX', (0,0), (-1,-1), 0.25, colors.black),
-        ])
-    )
-
-    Story.append(t)
-
-    Story.append(Spacer(1,0.5*inch))    
-
-    t=Table(remetente,[width-2*inch], len(destinatario)*[0.4*inch])
-    
-    t.setStyle(
-        TableStyle([
-            ('BACKGROUND',(0,0),(0,0),colors.gray),
-            ('TEXTCOLOR',(0,0),(0,0),colors.white),
-            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('INNERGRID', (0,0), (-1,-1), 0.25, colors.white),
-            ('BOX', (0,0), (-1,-1), 0.25, colors.black),
-        ])
-    )
-
-    Story.append(t)
-    
-    doc.build(Story, onFirstPage=editCanvas)
-    
-    return buffer
-
-
-def erro(request):
-    return render(request, 'erro.html', {
-        'teste': 'teste'
-    })
