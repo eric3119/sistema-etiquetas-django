@@ -44,7 +44,18 @@ class DestinatariosView(ListView):
 
 class DestinatarioDetailView(DetailView):
     model=Destinatario
-    template_name='etiq_item.html'    
+    template_name='etiq_item.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['count_enviados'] = len(Destinatario.objects.exclude(data_gerado=None))         
+        try:
+            context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
+        except Destinatario.DoesNotExist:
+            context['count_pendentes'] = 0
+
+        return context
     
 
 class DestinatarioDelete(DeleteView):
@@ -62,7 +73,18 @@ class DestinatarioDelete(DeleteView):
             remetente.delete()
         except Remetente.DoesNotExist:
             pass
-        return HttpResponseRedirect(success_url)    
+        return HttpResponseRedirect(success_url) 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['count_enviados'] = len(Destinatario.objects.exclude(data_gerado=None))         
+        try:
+            context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
+        except Destinatario.DoesNotExist:
+            context['count_pendentes'] = 0
+
+        return context
 
 class DestinatarioCreateView(CreateView):
     model = Destinatario
@@ -70,12 +92,34 @@ class DestinatarioCreateView(CreateView):
     form_class = DestinatarioForm
     success_url='/'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['count_enviados'] = len(Destinatario.objects.exclude(data_gerado=None))         
+        try:
+            context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
+        except Destinatario.DoesNotExist:
+            context['count_pendentes'] = 0
+
+        return context
+
 class DestinatarioUpdateView(UpdateView):
     model = Destinatario
     template_name = 'etiq_form.html'
     form_class = DestinatarioForm    
     def get_success_url(self):
         return reverse('detalhes', kwargs={'pk': self.object.pk})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['count_enviados'] = len(Destinatario.objects.exclude(data_gerado=None))         
+        try:
+            context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
+        except Destinatario.DoesNotExist:
+            context['count_pendentes'] = 0
+
+        return context
     
 class PDFView(View):
     model=Destinatario
