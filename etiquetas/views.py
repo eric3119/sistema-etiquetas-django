@@ -111,10 +111,29 @@ class DestinatarioCreateView(CreateView):
 
         return context
 
+class RemetenteCreateView(CreateView):
+    model = Destinatario
+    template_name='etiq_form.html'
+    form_class = DestinatarioForm
+    success_url='/'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['count_enviados'] = len(Destinatario.objects.exclude(data_gerado=None))         
+        try:
+            context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
+        except Destinatario.DoesNotExist:
+            context['count_pendentes'] = 0
+        
+        context['title'] = '{}'.format(kwargs.get('pk'))
+
+        return context
+
 class DestinatarioUpdateView(UpdateView):
     model = Destinatario
     template_name = 'etiq_form.html'
-    form_class = DestinatarioForm    
+    form_class = DestinatarioForm
     def get_success_url(self):
         return reverse('detalhes', kwargs={'pk': self.object.pk})
     
