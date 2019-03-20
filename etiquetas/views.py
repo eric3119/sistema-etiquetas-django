@@ -28,6 +28,8 @@ class DestinatariosView(ListView):
             context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
         except Destinatario.DoesNotExist:
             context['count_pendentes'] = 0
+        
+        context['title'] = 'Etiquetas'
 
         return context
     
@@ -54,6 +56,8 @@ class DestinatarioDetailView(DetailView):
             context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
         except Destinatario.DoesNotExist:
             context['count_pendentes'] = 0
+        
+        context['title'] = 'Detalhes'
 
         return context
     
@@ -83,6 +87,8 @@ class DestinatarioDelete(DeleteView):
             context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
         except Destinatario.DoesNotExist:
             context['count_pendentes'] = 0
+        
+        context['title'] = 'Excluir'
 
         return context
 
@@ -100,6 +106,8 @@ class DestinatarioCreateView(CreateView):
             context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
         except Destinatario.DoesNotExist:
             context['count_pendentes'] = 0
+        
+        context['title'] = 'Adicionar'
 
         return context
 
@@ -118,6 +126,8 @@ class DestinatarioUpdateView(UpdateView):
             context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
         except Destinatario.DoesNotExist:
             context['count_pendentes'] = 0
+        
+        context['title'] = 'Editar'
 
         return context
     
