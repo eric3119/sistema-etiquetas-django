@@ -1,7 +1,6 @@
-from django.urls import path, re_path
-from .views import pdf_gen
+from django.urls import path
 from .views import (DestinatariosView, DestinatarioDetailView, DestinatarioUpdateView,
-                    DestinatarioCreateView, DestinatarioDelete)
+                    DestinatarioCreateView, DestinatarioDelete, PDFView)
 
 urlpatterns = [    
     path('', DestinatariosView.as_view(), name='home'),
@@ -9,5 +8,5 @@ urlpatterns = [
     path('create/', DestinatarioCreateView.as_view(), name='criar'),
     path('update/<int:pk>/', DestinatarioUpdateView.as_view(), name='atualizar'),
     path('delete/<int:pk>/', DestinatarioDelete.as_view(), name='deletar'),
-    path('pdf/<int:id_etiq>', pdf_gen, name='gerar_pdf'),
+    path('pdf/<int:pk>', PDFView.as_view(), name='gerar_pdf'),
 ]
