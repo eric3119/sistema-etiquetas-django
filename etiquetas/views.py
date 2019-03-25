@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 from django.views.generic import (ListView, DetailView, UpdateView,
                                     CreateView, DeleteView, View)
 
+from django.contrib.auth import authenticate, login, logout
+
 class DestinatariosView(ListView):
 
     model=Destinatario
@@ -201,3 +203,50 @@ class PDFView(View):
             destinatario.save()
 
         return response
+
+class UserProfileView(DetailView):
+
+    model=Destinatario
+    template_name = 'destinatarios.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['count_enviados'] = len(Destinatario.objects.exclude(data_gerado=None))         
+        try:
+            context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
+        except Destinatario.DoesNotExist:
+            context['count_pendentes'] = 0
+        
+        context['title'] = 'Etiquetas'
+
+        return context
+    
+    def get_queryset(self):
+        queryset = Destinatario.objects.all()
+
+        if self.request.GET.get('type'):
+            if self.request.GET.get('type') == 'enviados':
+                queryset = queryset.exclude(data_gerado=None)
+            elif self.request.GET.get('type') == 'pendentes':
+                queryset = queryset.filter(data_gerado=None)  
+        
+        return queryset
+
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(username=username, password=password)
+        if user:
+            if user.is_active:
+                login(request,user)
+                return HttpResponseRedirect(reverse('index'))
+            else:
+                return HttpResponse("Your account was inactive.")
+        else:
+            print("Someone tried to login and failed.")
+            print("They used username: {} and password: {}".format(username,password))
+            return HttpResponse("Invalid login details given")
+    else:
+        return render(request, 'registration/login.html', {})
