@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from django.views.generic import (ListView, DetailView, UpdateView,
-                                    CreateView, DeleteView, View)
+                                    CreateView, DeleteView, View, FormView)
 
 from django.contrib.auth import authenticate, login, logout
 
@@ -204,31 +204,11 @@ class PDFView(View):
 
         return response
 
-class UserProfileView(DetailView):
+#############################
+from django.contrib.auth.context_processors import auth
+from django.template import RequestContext
 
-    model=Destinatario
-    template_name = 'destinatarios.html'
+from django.contrib.auth.views import LoginView
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['count_enviados'] = len(Destinatario.objects.exclude(data_gerado=None))         
-        try:
-            context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
-        except Destinatario.DoesNotExist:
-            context['count_pendentes'] = 0
-        
-        context['title'] = 'Etiquetas'
-
-        return context
-    
-    def get_queryset(self):
-        queryset = Destinatario.objects.all()
-
-        if self.request.GET.get('type'):
-            if self.request.GET.get('type') == 'enviados':
-                queryset = queryset.exclude(data_gerado=None)
-            elif self.request.GET.get('type') == 'pendentes':
-                queryset = queryset.filter(data_gerado=None)  
-        
-        return queryset
+class UserProfileView(LoginView):
+    template_name = 'registration/login.html'
