@@ -203,12 +203,3 @@ class PDFView(View):
             destinatario.save()
 
         return response
-
-#############################
-from django.contrib.auth.context_processors import auth
-from django.template import RequestContext
-
-from django.contrib.auth.views import LoginView
-
-class UserProfileView(LoginView):
-    template_name = 'registration/login.html'
