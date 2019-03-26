@@ -13,11 +13,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 from django.views.generic import (ListView, DetailView, UpdateView,
-                                    CreateView, DeleteView, View, FormView)
+                                    CreateView, DeleteView, View)
 
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-class DestinatariosView(ListView):
+class DestinatariosView(LoginRequiredMixin, ListView):
 
     model=Destinatario
     template_name = 'destinatarios.html'
