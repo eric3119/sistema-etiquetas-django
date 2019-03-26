@@ -21,6 +21,7 @@ class DestinatariosView(LoginRequiredMixin, ListView):
 
     model=Destinatario
     template_name = 'destinatarios.html'
+    paginate_by = 10
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -36,7 +37,7 @@ class DestinatariosView(LoginRequiredMixin, ListView):
         return context
     
     def get_queryset(self):
-        queryset = Destinatario.objects.all()
+        queryset = Destinatario.objects.filter(remetente=self.request.user).order_by('id')
 
         if self.request.GET.get('type'):
             if self.request.GET.get('type') == 'enviados':
