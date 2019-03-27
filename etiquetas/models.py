@@ -14,7 +14,7 @@ class Remetente(models.Model):
 
 class Destinatario(models.Model):    
     
-    remetente = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    remetente = models.ForeignKey(User, on_delete=models.CASCADE)
     
     nome = models.CharField(max_length = 100)  
     funcao = models.CharField(max_length = 100)  

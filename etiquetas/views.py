@@ -47,7 +47,7 @@ class DestinatariosView(LoginRequiredMixin, ListView):
         
         return queryset
 
-class DestinatarioDetailView(DetailView):
+class DestinatarioDetailView(LoginRequiredMixin, DetailView):
     model=Destinatario
     template_name='etiq_item.html'
     
@@ -64,8 +64,12 @@ class DestinatarioDetailView(DetailView):
 
         return context
     
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(remetente = self.request.user)
+    
 
-class DestinatarioDelete(DeleteView):
+class DestinatarioDelete(LoginRequiredMixin, DeleteView):
     model=Destinatario
     template_name='destinatario_confirm_delete.html'
     success_url='/'
@@ -73,14 +77,16 @@ class DestinatarioDelete(DeleteView):
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         success_url = self.get_success_url()
-        remetente_id = self.object.remetente_id   
-        self.object.delete()
-        try:
-            remetente = Remetente.objects.get(id=remetente_id)
-            remetente.delete()
-        except Remetente.DoesNotExist:
-            pass
-        return HttpResponseRedirect(success_url) 
+        if self.object.remetente_id == self.request.user:
+            self.object.delete()
+            # try:
+            #     remetente = Remetente.objects.get(id=remetente_id)
+            #     remetente.delete()
+            # except Remetente.DoesNotExist:
+            #     pass
+            return HttpResponseRedirect(success_url) 
+        else:
+            raise Http404("não encontrado")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -95,7 +101,7 @@ class DestinatarioDelete(DeleteView):
 
         return context
 
-class DestinatarioCreateView(CreateView):
+class DestinatarioCreateView(LoginRequiredMixin, CreateView):
     model = Destinatario
     template_name='etiq_form.html'
     form_class = DestinatarioForm
@@ -113,8 +119,13 @@ class DestinatarioCreateView(CreateView):
         context['title'] = 'Adicionar'
 
         return context
+    
+    def form_valid(self, form):        
+        form.instance.remetente = self.request.user
+        self.object = form.save()
+        return super().form_valid(form)
 
-class DestinatarioUpdateView(UpdateView):
+class DestinatarioUpdateView(LoginRequiredMixin, UpdateView):
     model = Destinatario
     template_name = 'etiq_form.html'
     form_class = DestinatarioForm
@@ -134,7 +145,7 @@ class DestinatarioUpdateView(UpdateView):
 
         return context
     
-class PDFView(View):
+class PDFView(LoginRequiredMixin, View):
     model=Destinatario
 
     def get_db_itens_list(self, request, **kwargs):
