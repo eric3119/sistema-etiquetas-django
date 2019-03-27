@@ -1,6 +1,6 @@
 from django.shortcuts import render, reverse
-from .models import Destinatario#, Remetente
-from .forms import DestinatarioForm#, RemetenteForm
+from .models import Destinatario, Endereco
+from .forms import DestinatarioForm, EnderecoForm
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 
@@ -93,6 +93,30 @@ class DestinatarioDelete(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset.filter(remetente = self.request.user)
+
+
+class EnderecoCreateView(LoginRequiredMixin, CreateView):
+    model = Endereco
+    template_name='endr_form.html'
+    form_class = EnderecoForm
+    success_url='/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        total = Destinatario.objects.filter(remetente=self.request.user)
+        enviados = total.exclude(data_gerado=None)
+        context['count_enviados'] = len(enviados)
+        context['count_pendentes'] = len(total)-context['count_enviados']
+        
+        context['title'] = 'Adicionar'
+
+        return context
+    
+    def form_valid(self, form):        
+        form.instance.remetente = self.request.user
+        self.object = form.save()
+        return super().form_valid(form)
 
 
 class DestinatarioCreateView(LoginRequiredMixin, CreateView):
