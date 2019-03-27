@@ -25,12 +25,11 @@ class DestinatariosView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        context['count_enviados'] = len(Destinatario.objects.exclude(data_gerado=None))         
-        try:
-            context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
-        except Destinatario.DoesNotExist:
-            context['count_pendentes'] = 0
+        
+        total = Destinatario.objects.filter(remetente=self.request.user)
+        enviados = total.exclude(data_gerado=None)
+        context['count_enviados'] = len(enviados)
+        context['count_pendentes'] = len(total)-context['count_enviados']
         
         context['title'] = 'Etiquetas'
 
@@ -54,11 +53,10 @@ class DestinatarioDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['count_enviados'] = len(Destinatario.objects.exclude(data_gerado=None))         
-        try:
-            context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
-        except Destinatario.DoesNotExist:
-            context['count_pendentes'] = 0
+        total = Destinatario.objects.filter(remetente=self.request.user)
+        enviados = total.exclude(data_gerado=None)
+        context['count_enviados'] = len(enviados)
+        context['count_pendentes'] = len(total)-context['count_enviados']
         
         context['title'] = 'Detalhes'
 
@@ -91,11 +89,10 @@ class DestinatarioDelete(LoginRequiredMixin, DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['count_enviados'] = len(Destinatario.objects.exclude(data_gerado=None))         
-        try:
-            context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
-        except Destinatario.DoesNotExist:
-            context['count_pendentes'] = 0
+        total = Destinatario.objects.filter(remetente=self.request.user)
+        enviados = total.exclude(data_gerado=None)
+        context['count_enviados'] = len(enviados)
+        context['count_pendentes'] = len(total)-context['count_enviados']
         
         context['title'] = 'Excluir'
 
@@ -110,11 +107,10 @@ class DestinatarioCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['count_enviados'] = len(Destinatario.objects.exclude(data_gerado=None))         
-        try:
-            context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
-        except Destinatario.DoesNotExist:
-            context['count_pendentes'] = 0
+        total = Destinatario.objects.filter(remetente=self.request.user)
+        enviados = total.exclude(data_gerado=None)
+        context['count_enviados'] = len(enviados)
+        context['count_pendentes'] = len(total)-context['count_enviados']
         
         context['title'] = 'Adicionar'
 
@@ -135,11 +131,10 @@ class DestinatarioUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['count_enviados'] = len(Destinatario.objects.exclude(data_gerado=None))         
-        try:
-            context['count_pendentes'] = len(Destinatario.objects.filter(data_gerado=None))
-        except Destinatario.DoesNotExist:
-            context['count_pendentes'] = 0
+        total = Destinatario.objects.filter(remetente=self.request.user)
+        enviados = total.exclude(data_gerado=None)
+        context['count_enviados'] = len(enviados)
+        context['count_pendentes'] = len(total)-context['count_enviados']
         
         context['title'] = 'Editar'
 

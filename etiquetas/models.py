@@ -24,8 +24,11 @@ class Destinatario(models.Model):
     data_adicionado = models.DateTimeField(auto_now_add=True)
     data_gerado = models.DateTimeField(null=True)
 
-    def is_generated(self):
-        return self.data_gerado
+    def is_generated(self, user):
+        if user == self.remetente:
+            return self.data_gerado
+        
+        return None
 
     def __str__(self):
         return self.nome
