@@ -75,16 +75,8 @@ class DestinatarioDelete(LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         success_url = self.get_success_url()
-        if self.object.remetente_id == self.request.user:
-            self.object.delete()
-            # try:
-            #     remetente = Remetente.objects.get(id=remetente_id)
-            #     remetente.delete()
-            # except Remetente.DoesNotExist:
-            #     pass
-            return HttpResponseRedirect(success_url) 
-        else:
-            raise Http404("não encontrado")
+        self.object.delete()
+        return HttpResponseRedirect(success_url)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -97,6 +89,11 @@ class DestinatarioDelete(LoginRequiredMixin, DeleteView):
         context['title'] = 'Excluir'
 
         return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(remetente = self.request.user)
+
 
 class DestinatarioCreateView(LoginRequiredMixin, CreateView):
     model = Destinatario
@@ -139,6 +136,10 @@ class DestinatarioUpdateView(LoginRequiredMixin, UpdateView):
         context['title'] = 'Editar'
 
         return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(remetente=self.request.user)
     
 class PDFView(LoginRequiredMixin, View):
     model=Destinatario
