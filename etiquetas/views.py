@@ -1,6 +1,6 @@
 from django.shortcuts import render, reverse
-from .models import Destinatario, Remetente
-from .forms import DestinatarioForm, RemetenteForm
+from .models import Destinatario#, Remetente
+from .forms import DestinatarioForm#, RemetenteForm
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 
@@ -153,31 +153,31 @@ class PDFView(LoginRequiredMixin, View):
             raise Http404("id não existe")
 
         remetente = None
-        try:
-            remetente = Remetente.objects.get(id=destinatario.remetente_id)
-        except Remetente.DoesNotExist:    
-            pass
+        # try:
+        #     remetente = Remetente.objects.get(id=destinatario.remetente_id)
+        # except Remetente.DoesNotExist:    
+        #     pass
         
         return [destinatario, remetente]
     
-    def post(self, request, *args, **kwargs):
-        # adicionar remetente
-        form = RemetenteForm(request.POST)
+    # def post(self, request, *args, **kwargs):
+    #     # adicionar remetente
+    #     form = RemetenteForm(request.POST)
 
-        if form.is_valid():
-            new_dest = form.save()
-            Destinatario.objects.filter(id=kwargs.get('pk')).update(remetente_id=new_dest.pk)
-        return HttpResponseRedirect('/pdf/{}'.format(kwargs.get('pk')))
+    #     if form.is_valid():
+    #         new_dest = form.save()
+    #         Destinatario.objects.filter(id=kwargs.get('pk')).update(remetente_id=new_dest.pk)
+    #     return HttpResponseRedirect('/pdf/{}'.format(kwargs.get('pk')))
     
     def get(self, request, *args, **kwargs):
 
         destinatario, remetente = self.get_db_itens_list(request, **kwargs)
 
-        if remetente == None:
-            return render(request, 'etiq_form.html', {
-                'form': RemetenteForm(),
-                'title': 'Remetente'
-            })
+        # if remetente == None:
+        #     return render(request, 'etiq_form.html', {
+        #         'form': RemetenteForm(),
+        #         'title': 'Remetente'
+        #     })
         
         title = 'etiqueta{}'.format(destinatario.id)
 
