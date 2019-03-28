@@ -114,7 +114,9 @@ class EnderecoCreateView(LoginRequiredMixin, CreateView):
         return context
     
     def form_valid(self, form):        
-        form.instance.remetente = self.request.user
+        
+        form.instance.user = self.request.user
+        
         self.object = form.save()
         return super().form_valid(form)
 
@@ -181,32 +183,13 @@ class PDFView(LoginRequiredMixin, View):
         except Destinatario.DoesNotExist:
             raise Http404("id não existe")
 
-        remetente = None
-        # try:
-        #     remetente = Remetente.objects.get(id=destinatario.remetente_id)
-        # except Remetente.DoesNotExist:    
-        #     pass
+        remetente = self.request.user
         
         return [destinatario, remetente]
     
-    # def post(self, request, *args, **kwargs):
-    #     # adicionar remetente
-    #     form = RemetenteForm(request.POST)
-
-    #     if form.is_valid():
-    #         new_dest = form.save()
-    #         Destinatario.objects.filter(id=kwargs.get('pk')).update(remetente_id=new_dest.pk)
-    #     return HttpResponseRedirect('/pdf/{}'.format(kwargs.get('pk')))
-    
     def get(self, request, *args, **kwargs):
 
-        destinatario, remetente = self.get_db_itens_list(request, **kwargs)
-
-        # if remetente == None:
-        #     return render(request, 'etiq_form.html', {
-        #         'form': RemetenteForm(),
-        #         'title': 'Remetente'
-        #     })
+        destinatario, remetente = self.get_db_itens_list(request, **kwargs)      
         
         title = 'etiqueta{}'.format(destinatario.id)
 
@@ -216,18 +199,22 @@ class PDFView(LoginRequiredMixin, View):
         linhas_destinatario = [
             ['DESTINATÁRIO'],
             ['Nome: '+destinatario.nome],
-            ['Função: '+destinatario.funcao],
-            ['Endereco: '+destinatario.endereco],
-            ['Orgão: '+destinatario.orgao],
+            ['Função: '+destinatario.funcao],            
+            ['Orgão: '+destinatario.orgao.orgao],
+            ['Endereco: '+destinatario.orgao.rua],
             ['Email: '+destinatario.email],
         ]
         linhas_remetente= [
-            ['REMETENTE'],
-            ['Nome: '+remetente.nome],
-            ['Função: '+remetente.funcao],
-            ['Endereco: '+remetente.endereco],
-            ['Orgão: '+remetente.orgao],
-            ['Email: '+remetente.email],
+            ['REMETENTE'],            
+            ['Nome: '+remetente.username],
+            ['Nome: '+remetente.username],
+            ['Nome: '+remetente.username],
+            ['Nome: '+remetente.username],
+            ['Nome: '+remetente.username],
+            # ['Função: '+remetente.funcao],
+            # ['Endereco: '+remetente.endereco],
+            # ['Orgão: '+remetente.orgao],
+            # ['Email: '+remetente.email],
         ]
 
         buffer = create_pdf_buffer(linhas_remetente, linhas_destinatario, title)

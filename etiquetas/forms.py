@@ -6,14 +6,14 @@ class DestinatarioForm(ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(DestinatarioForm, self).__init__(*args, **kwargs)    
 
-        self.fields['endereco'].queryset = Endereco.objects.filter(user=user)
+        self.fields['orgao'].queryset = Endereco.objects.filter(user=user)
         
         for visible in self.visible_fields():
             visible.field.widget.attrs['class'] = 'form-control col-sm-6'
     
     class Meta:
         model = Destinatario
-        fields = ['nome', 'funcao', 'email', 'orgao', 'endereco']
+        fields = ['nome', 'funcao', 'email', 'orgao']
 
 
 class EnderecoForm(ModelForm):
@@ -25,4 +25,4 @@ class EnderecoForm(ModelForm):
     
     class Meta:
         model = Endereco
-        fields = ['rua', 'numero', 'cidade', 'cep', 'estado']
+        fields = ['orgao','rua', 'numero', 'cidade', 'cep', 'estado']
