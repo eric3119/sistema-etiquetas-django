@@ -109,7 +109,7 @@ class EnderecoCreateView(LoginRequiredMixin, CreateView):
         context['count_enviados'] = len(enviados)
         context['count_pendentes'] = len(total)-context['count_enviados']
         
-        context['title'] = 'Adicionar'
+        context['title'] = 'Adicionar Endereco'
 
         return context
     
@@ -133,7 +133,7 @@ class DestinatarioCreateView(LoginRequiredMixin, CreateView):
         context['count_enviados'] = len(enviados)
         context['count_pendentes'] = len(total)-context['count_enviados']
         
-        context['title'] = 'Adicionar'
+        context['title'] = 'Adicionar Destinatario'
 
         return context
     
@@ -141,6 +141,11 @@ class DestinatarioCreateView(LoginRequiredMixin, CreateView):
         form.instance.remetente = self.request.user
         self.object = form.save()
         return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(self.request.user, **self.get_form_kwargs())
 
 class DestinatarioUpdateView(LoginRequiredMixin, UpdateView):
     model = Destinatario
