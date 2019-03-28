@@ -7,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">    
         <link rel="stylesheet" href="{{ STATIC_URL }} /static/bootstrap/css/bootstrap.min.css">
         <link rel="stylesheet" href="{{ STATIC_URL }} /static/fontawesome/css/all.css">
-        <link rel="stylesheet" type="text/css" media="screen" href="main.css">    
+        <link rel="stylesheet" href="{{ STATIC_URL }} /static/main.css">        
         <script type="text/javascript" src="{{ STATIC_URL }} /static/jquery/jquery-3.3.1.min.js"></script>
     </head>
     <body>
@@ -26,20 +26,36 @@
                             <a class="nav-item nav-link active" href="{% url 'home' %}?type=pendentes">
                                 Pendentes
                                 <span class="badge badge-secondary">{{count_pendentes}}</span>
-                            </a>
-                            <a class="nav-item nav-link active" href="{% url 'criar' %}"><i class="fas fa-plus"></i></a>
+                            </a>                            
                         </div>
                     </div>
                 </div>
             </nav>
         </header>
-        <br>        
-        {% if user.is_authenticated %}
-            User: {{ user.get_username }}
-            <a href="{% url 'logout'%}?next={{request.path}}">Logout</a>
-        {% else %}
-            <a href="{% url 'login'%}?next={{request.path}}">Login</a>
-        {% endif %}
+        <br>
+        <div class="navbar sidebar">
+            <div class="col-sm-2">
+                <ul class="nav flex-column">                
+                    {% if user.is_authenticated %}
+                        Usuário: {{ user.get_username }}
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'criar' %}">Adicionar Destinatario</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'endereco' %}">Adicionar Endereco</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'logout'%}?next={{request.path}}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{% url 'login'%}?next={{request.path}}">Login</a>
+                        </li>
+                    {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
 
         {% block content %}
         {% endblock %}

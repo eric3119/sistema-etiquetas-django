@@ -10,7 +10,7 @@
         
         <div class="container">
             <div class="row">
-                <div class="col-sm-1">
+                <div class="col-sm-2">
                     Nome: 
                 </div>
                 <div class="col">
@@ -18,7 +18,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-1">
+                <div class="col-sm-2">
                         Função: 
                 </div>
                 <div class="col">
@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-1">
+                <div class="col-sm-2">
                     Email: 
                 </div>
                 <div class="col">
@@ -34,31 +34,16 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-1">
-                    Orgão: 
+                <div class="col-sm-2">
+                    Orgão/Endereco: 
                 </div>
                 <div class="col">
                     {{ object.orgao }}
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-1">
-                    Endereço: 
-                </div>
-                <div class="col">
-                    {{ object.endereco }}
-                </div>
-            </div>
-            <!--div class="row">
-                <div class="col-sm-1">
-                </div>
-                <div class="col">
-                    {{ object.data_adicionado }}
-                </div>
-            </div-->
             {% if object.data_gerado %}
-                <div class="row align-items-center">
-                    <div class="col-auto">
+                <div class="row">
+                    <div class="col-sm-2">
                         Enviado em: 
                     </div>
                     <div class="col">
