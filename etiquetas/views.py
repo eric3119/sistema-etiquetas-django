@@ -1,6 +1,6 @@
 from django.shortcuts import render, reverse
-from .models import Destinatario, Endereco, Orgao
-from .forms import DestinatarioForm, EnderecoForm, OrgaoForm
+from .models import Destinatario, Endereco, Orgao, UserProfile
+from .forms import DestinatarioForm, EnderecoForm, OrgaoForm, UserProfileForm
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 
@@ -157,6 +157,39 @@ class OrgaoCreateView(LoginRequiredMixin, CreateView):
         return form_class(self.request.user, **self.get_form_kwargs())
 
 
+class UserProfileCreateView(LoginRequiredMixin, CreateView):
+    model = UserProfile
+    template_name='etiq_form.html'
+    form_class = UserProfileForm
+    
+    def get_success_url(self):
+        return reverse('inicio')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        total = Destinatario.objects.filter(remetente=self.request.user)
+        enviados = total.exclude(data_gerado=None)
+        context['count_enviados'] = len(enviados)
+        context['count_pendentes'] = len(total)-context['count_enviados']
+        
+        context['title'] = 'Adicionar Informações'
+
+        return context
+    
+    def form_valid(self, form):        
+        
+        form.instance.user = self.request.user
+        
+        self.object = form.save()
+        return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(self.request.user, **self.get_form_kwargs())
+
+
 class DestinatarioCreateView(LoginRequiredMixin, CreateView):
     model = Destinatario
     template_name='etiq_form.html'
@@ -215,25 +248,26 @@ class DestinatarioUpdateView(LoginRequiredMixin, UpdateView):
             form_class = self.get_form_class()
         return form_class(self.request.user, **self.get_form_kwargs())
     
-class PDFView(LoginRequiredMixin, View):
-    model=Destinatario
+class PDFView(LoginRequiredMixin, View):    
 
-    def get_db_itens_list(self, request, **kwargs):
-
+    def get_destinatario(self, request, **kwargs):
+        
+        id_destinatario = kwargs.get('pk')
+        
         destinatario = None
         try:
-            destinatario = Destinatario.objects.get(id=kwargs.get('pk'))
+            destinatario = Destinatario.objects.get(id=id_destinatario, remetente=self.request.user)
         except Destinatario.DoesNotExist:
             raise Http404("id não existe")
-
-        remetente = self.request.user
         
-        return [destinatario, remetente]
+        return destinatario
     
     def get(self, request, *args, **kwargs):
 
-        destinatario, remetente = self.get_db_itens_list(request, **kwargs)      
-        
+        destinatario = self.get_destinatario(request, **kwargs)
+        user = self.request.user._wrapped if hasattr(self.request.user,'_wrapped') else self.request.user
+        user_info = UserProfile.objects.get(user_id=user.id)
+
         title = 'etiqueta{}'.format(destinatario.id)
 
         response = HttpResponse(content_type='application/pdf')
@@ -243,21 +277,17 @@ class PDFView(LoginRequiredMixin, View):
             ['DESTINATÁRIO'],
             ['Nome: '+destinatario.nome],
             ['Função: '+destinatario.funcao],            
-            ['Orgão: '+destinatario.orgao.orgao],
-            ['Endereco: '+destinatario.orgao.rua],
+            ['Orgão: '+destinatario.orgao.nome],
+            ['Endereco: '+destinatario.orgao.endereco.__str__()],
             ['Email: '+destinatario.email],
         ]
         linhas_remetente= [
             ['REMETENTE'],            
-            ['Nome: '+remetente.username],
-            ['Nome: '+remetente.username],
-            ['Nome: '+remetente.username],
-            ['Nome: '+remetente.username],
-            ['Nome: '+remetente.username],
-            # ['Função: '+remetente.funcao],
-            # ['Endereco: '+remetente.endereco],
-            # ['Orgão: '+remetente.orgao],
-            # ['Email: '+remetente.email],
+            ['Nome: '+user.username],
+            ['Função: '+user_info.funcao],
+            ['Endereco: '+user_info.orgao.endereco.__str__()],
+            ['Orgão: '+user_info.orgao.__str__()],
+            ['Email: '+user.email],
         ]
 
         buffer = create_pdf_buffer(linhas_remetente, linhas_destinatario, title)

@@ -1,5 +1,5 @@
 from django.forms import ModelForm, ModelChoiceField
-from .models import Destinatario, Endereco, Orgao
+from .models import Destinatario, Endereco, Orgao, UserProfile
 
 class DestinatarioForm(ModelForm):    
     
@@ -38,3 +38,15 @@ class EnderecoForm(ModelForm):
     class Meta:
         model = Endereco
         fields = ['rua', 'numero', 'cidade', 'cep', 'estado']
+
+class UserProfileForm(ModelForm):
+
+    def __init__(self, user, *args, **kwargs):
+        super(UserProfileForm, self).__init__(*args, **kwargs)  
+        self.fields['orgao'].queryset = Orgao.objects.filter(user=user)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control col-sm-6'
+    
+    class Meta:
+        model = UserProfile
+        fields=['funcao','orgao']

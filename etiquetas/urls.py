@@ -1,7 +1,7 @@
 from django.urls import path, include
 from .views import (DestinatariosView, DestinatarioDetailView, DestinatarioUpdateView,
                     DestinatarioCreateView, EnderecoCreateView, DestinatarioDelete, OrgaoCreateView,
-                    PDFView)
+                    UserProfileCreateView, PDFView)
 from django.contrib.auth.views import LoginView
 
 urlpatterns = [    
@@ -10,6 +10,7 @@ urlpatterns = [
     path('add/destinatario/', DestinatarioCreateView.as_view(), name='criar_destinatario'),
     path('add/orgao/', OrgaoCreateView.as_view(), name='criar_orgao'),
     path('add/endereco/', EnderecoCreateView.as_view(), name='criar_endereco'),
+    path('add/user_profile/', UserProfileCreateView.as_view(), name='criar_user_profile'),
     path('update/<int:pk>/', DestinatarioUpdateView.as_view(), name='atualizar_destinatario'),
     path('delete/<int:pk>/', DestinatarioDelete.as_view(), name='deletar_destinatario'),
     path('pdf/<int:pk>/', PDFView.as_view(), name='gerar_pdf'),

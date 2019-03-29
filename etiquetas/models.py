@@ -13,14 +13,6 @@ class Endereco(models.Model):
         return '{} - {} - {} - {} - {}'.format(self.rua, self.numero, self.cep, self.cidade, self.estado)
 
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    endereco = models.ForeignKey(Endereco, on_delete=models.CASCADE)
-
-    # def __str__(self):
-    #     return self.user.__str__()
-
-
 class Orgao(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     nome = models.CharField(max_length=100)
@@ -29,6 +21,15 @@ class Orgao(models.Model):
     def __str__(self):
         return self.nome
 
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    funcao = models.CharField(max_length = 100)
+    orgao = models.ForeignKey(Orgao, on_delete=models.CASCADE)
+
+    # def __str__(self):
+    #     return self.user.__str__()
+    
 
 class Destinatario(models.Model):
     
