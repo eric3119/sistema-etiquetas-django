@@ -1,6 +1,6 @@
 from django.shortcuts import render, reverse
-from .models import Destinatario, Endereco
-from .forms import DestinatarioForm, EnderecoForm
+from .models import Destinatario, Endereco, Orgao
+from .forms import DestinatarioForm, EnderecoForm, OrgaoForm
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 
@@ -97,7 +97,7 @@ class DestinatarioDelete(LoginRequiredMixin, DeleteView):
 
 class EnderecoCreateView(LoginRequiredMixin, CreateView):
     model = Endereco
-    template_name='endr_form.html'
+    template_name='etiq_form.html'
     form_class = EnderecoForm
     success_url='/'
 
@@ -119,6 +119,36 @@ class EnderecoCreateView(LoginRequiredMixin, CreateView):
         
         self.object = form.save()
         return super().form_valid(form)
+
+class OrgaoCreateView(LoginRequiredMixin, CreateView):
+    model = Orgao
+    template_name='etiq_form.html'
+    form_class = OrgaoForm
+    success_url='/create/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        total = Destinatario.objects.filter(remetente=self.request.user)
+        enviados = total.exclude(data_gerado=None)
+        context['count_enviados'] = len(enviados)
+        context['count_pendentes'] = len(total)-context['count_enviados']
+        
+        context['title'] = 'Adicionar Orgão'
+
+        return context
+    
+    def form_valid(self, form):        
+        
+        form.instance.user = self.request.user
+        
+        self.object = form.save()
+        return super().form_valid(form)
+    
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(self.request.user, **self.get_form_kwargs())
 
 
 class DestinatarioCreateView(LoginRequiredMixin, CreateView):
@@ -154,7 +184,7 @@ class DestinatarioUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'etiq_form.html'
     form_class = DestinatarioForm
     def get_success_url(self):
-        return reverse('detalhes', kwargs={'pk': self.object.pk})
+        return reverse('detalhes_destinatario', kwargs={'pk': self.object.pk})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -164,13 +194,18 @@ class DestinatarioUpdateView(LoginRequiredMixin, UpdateView):
         context['count_enviados'] = len(enviados)
         context['count_pendentes'] = len(total)-context['count_enviados']
         
-        context['title'] = 'Editar'
+        context['title'] = 'Editar Destinatario'
 
         return context
     
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset.filter(remetente=self.request.user)
+
+    def get_form(self, form_class=None):
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(self.request.user, **self.get_form_kwargs())
     
 class PDFView(LoginRequiredMixin, View):
     model=Destinatario

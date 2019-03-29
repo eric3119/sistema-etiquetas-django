@@ -7,57 +7,56 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">    
         <link rel="stylesheet" href="{{ STATIC_URL }} /static/bootstrap/css/bootstrap.min.css">
         <link rel="stylesheet" href="{{ STATIC_URL }} /static/fontawesome/css/all.css">
+        <link rel="stylesheet" href="{{ STATIC_URL }} /static/simple-sidebar/simple-sidebar.css">
         <link rel="stylesheet" href="{{ STATIC_URL }} /static/main.css">        
         <script type="text/javascript" src="{{ STATIC_URL }} /static/jquery/jquery-3.3.1.min.js"></script>
     </head>
     <body>
-        <header>
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                <div class="container">
-                    <a href="/"><span class="navbar-brand">Início</span></a>
-                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                        <div class="navbar-nav">
-                            <a class="nav-item nav-link active" href="{% url 'home' %}?type=enviados">
-                                Enviados <span class="badge badge-secondary">{{count_enviados}}</span>
-                            </a>
-                            <a class="nav-item nav-link active" href="{% url 'home' %}?type=pendentes">
-                                Pendentes
-                                <span class="badge badge-secondary">{{count_pendentes}}</span>
-                            </a>                            
-                        </div>
-                    </div>
-                </div>
-            </nav>
-        </header>
+        <div class="d-flex" id="wrapper">
         <br>
-        <div class="navbar sidebar">
-            <div class="col-sm-2">
-                <ul class="nav flex-column">                
-                    {% if user.is_authenticated %}
-                        Usuário: {{ user.get_username }}
-                        <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'criar' %}">Adicionar Destinatario</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'endereco' %}">Adicionar Endereco</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'logout'%}?next={{request.path}}">Logout</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'login'%}?next={{request.path}}">Login</a>
-                        </li>
-                    {% endif %}
-                    </li>
-                </ul>
+        <div class="bg-light border-right" id="sidebar-wrapper">
+            {% if user.is_authenticated %}
+            <div class="sidebar-heading">{{ user.get_username }}</div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'criar_destinatario' %}" class="list-group-item list-group-item-action bg-light">Adicionar Destinatario</a>
+                <a href="{% url 'criar_orgao' %}" class="list-group-item list-group-item-action bg-light">Adicionar Orgão</a>
+                <a href="{% url 'criar_endereco' %}" class="list-group-item list-group-item-action bg-light">Adicionar Endereco</a>
+                <a class="nav-link active" href="{% url 'logout'%}?next={{request.path}}">Logout</a>
             </div>
+            {% else %}
+            <div class="sidebar-heading"><a class="nav-link active" href="{% url 'login'%}?next={{request.path}}">Login</a></div>            
+            {% endif %}
+        </div>        
+        <div id="page-content-wrapper">
+                <header>
+                    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                        <div class="container">
+                            <a href="{% url 'inicio' %}"><span class="navbar-brand">Início</span></a>
+                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="navbar-toggler-icon"></span>
+                            </button>
+                            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                                <div class="navbar-nav">
+                                    <a class="nav-item nav-link active" href="{% url 'inicio' %}?type=enviados">
+                                        Enviados <span class="badge badge-secondary">{{count_enviados}}</span>
+                                    </a>
+                                    <a class="nav-item nav-link active" href="{% url 'inicio' %}?type=pendentes">
+                                        Pendentes <span class="badge badge-secondary">{{count_pendentes}}</span>
+                                    </a>                            
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+                </header>
+            {% block content %}
+            {% endblock %}
         </div>
-
-        {% block content %}
-        {% endblock %}
+        <!-- Menu Toggle Script -->
+        <script>
+            $("#menu-toggle").click(function(e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+        </script>
     </body>
 </html>

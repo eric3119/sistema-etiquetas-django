@@ -3,7 +3,7 @@
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'home' %}">Início</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'inicio' %}">Início</a></li>
                 <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
             </ol>
         </nav>
@@ -35,10 +35,18 @@
             </div>
             <div class="row">
                 <div class="col-sm-2">
-                    Orgão/Endereco: 
+                    Orgão: 
                 </div>
                 <div class="col">
                     {{ object.orgao }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    Endereço: 
+                </div>
+                <div class="col">
+                    {{ object.orgao.endereco }}
                 </div>
             </div>
             {% if object.data_gerado %}
@@ -54,7 +62,7 @@
         </div>
         <br>
         <a class="btn btn-primary" href="{% url 'gerar_pdf' object.id %}"><i class="fas fa-file-pdf"></i></a>
-        <a class="btn btn-primary" href="{% url 'atualizar' object.id %}"><i class="fas fa-pen"></i></a>
-        <a id="btn-delete" class="btn btn-primary" href="{% url 'deletar' object.id %}"><i class="fas fa-minus-circle"></i></a>                
+        <a class="btn btn-primary" href="{% url 'atualizar_destinatario' object.id %}"><i class="fas fa-pen"></i></a>
+        <a id="btn-delete" class="btn btn-primary" href="{% url 'deletar_destinatario' object.id %}"><i class="fas fa-minus-circle"></i></a>                
     </div>
 {% endblock %}
