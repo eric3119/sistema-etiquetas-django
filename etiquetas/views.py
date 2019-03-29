@@ -70,7 +70,9 @@ class DestinatarioDetailView(LoginRequiredMixin, DetailView):
 class DestinatarioDelete(LoginRequiredMixin, DeleteView):
     model=Destinatario
     template_name='destinatario_confirm_delete.html'
-    success_url='/'
+    
+    def get_success_url(self):
+        return reverse('inicio')
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -99,7 +101,9 @@ class EnderecoCreateView(LoginRequiredMixin, CreateView):
     model = Endereco
     template_name='etiq_form.html'
     form_class = EnderecoForm
-    success_url='/'
+        
+    def get_success_url(self):
+        return reverse('inicio')    
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -124,7 +128,9 @@ class OrgaoCreateView(LoginRequiredMixin, CreateView):
     model = Orgao
     template_name='etiq_form.html'
     form_class = OrgaoForm
-    success_url='/create/'
+
+    def get_success_url(self):
+        return reverse('inicio')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -155,7 +161,9 @@ class DestinatarioCreateView(LoginRequiredMixin, CreateView):
     model = Destinatario
     template_name='etiq_form.html'
     form_class = DestinatarioForm
-    success_url='/'
+    
+    def get_success_url(self):
+        return reverse('inicio')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

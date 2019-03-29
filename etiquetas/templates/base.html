@@ -12,8 +12,7 @@
         <script type="text/javascript" src="{{ STATIC_URL }} /static/jquery/jquery-3.3.1.min.js"></script>
     </head>
     <body>
-        <div class="d-flex" id="wrapper">
-        <br>
+        <div class="d-flex" id="wrapper">        
         <div class="bg-light border-right" id="sidebar-wrapper">
             {% if user.is_authenticated %}
             <div class="sidebar-heading">{{ user.get_username }}</div>
@@ -48,8 +47,10 @@
                         </div>
                     </nav>
                 </header>
+        <div style="margin-top: 1%">
             {% block content %}
             {% endblock %}
+        </div>
         </div>
         <!-- Menu Toggle Script -->
         <script>
