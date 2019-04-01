@@ -17,4 +17,9 @@
             </div>
         </form>
     </div>
+    {% if address_id %}
+        <script>
+            $('#id_endereco').val({{address_id}})
+        </script>        
+    {% endif %}
 {% endblock %}

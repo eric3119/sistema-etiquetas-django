@@ -128,9 +128,17 @@ class OrgaoCreateView(LoginRequiredMixin, CreateView):
     model = Orgao
     template_name='etiq_form.html'
     form_class = OrgaoForm
-
+    address_id = None
     def get_success_url(self):
         return reverse('inicio')
+    
+    def get(self, request, *args, **kwargs):
+
+        self.address_id = kwargs.get('pk')
+
+        get=super().get(request, *args, **kwargs)
+
+        return get
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -141,6 +149,7 @@ class OrgaoCreateView(LoginRequiredMixin, CreateView):
         context['count_pendentes'] = len(total)-context['count_enviados']
         
         context['title'] = 'Adicionar Orgão'
+        context['address_id'] = self.address_id
 
         return context
     
@@ -155,6 +164,25 @@ class OrgaoCreateView(LoginRequiredMixin, CreateView):
         if form_class is None:
             form_class = self.get_form_class()
         return form_class(self.request.user, **self.get_form_kwargs())
+
+class OrgaoAddressCreateView(EnderecoCreateView):
+
+    def get_success_url(self):
+        return reverse('criar_orgao', kwargs={'pk':self.address_id})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+
+        context['title'] = 'Adicionar Orgão'
+        return context
+
+    def form_valid(self, form):
+        """If the form is valid, save the associated model."""
+        self.object = form.save()
+        self.address_id = self.object.id
+        return super().form_valid(form)      
+
+
 
 
 class UserProfileCreateView(LoginRequiredMixin, CreateView):

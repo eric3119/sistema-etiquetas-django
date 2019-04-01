@@ -3,7 +3,15 @@
 <div class="container">    
     <div class="list-group">                        
         {% for item in object_list %}
-            <a class="list-group-item list-group-item-action" href="{% url 'detalhes_destinatario' item.id %}">{{ item.nome }}</a>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">
+                        <input type="checkbox" aria-label="Checkbox for following text input">
+                    </div>
+                </div>
+                <a class="form-control list-group-item-action" href="{% url 'detalhes_destinatario' item.id %}">{{ item.nome }}</a>
+            </div>
+            <!--a class="list-group-item list-group-item-action" href="{% url 'detalhes_destinatario' item.id %}">{{ item.nome }}</a-->
         {% empty %}
         <span class="list-group-item">Sem itens</span>
         {% endfor %}            
